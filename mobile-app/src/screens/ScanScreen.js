@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { kavachAPI } from '../services/api';
 
 export default function ScanScreen() {
   const [phone, setPhone] = useState('');
@@ -34,18 +35,18 @@ export default function ScanScreen() {
 
   // Feature 2: Real-time Voice to Text AI Analysis Simulator
   const startLiveCallAnalysis = async () => {
-    if (!callTranscript.trim()) return;
+    if (!callTranscript.trim() || callTranscript.trim().length < 10) {
+      Alert.alert("Input Too Short", "Please enter at least 10 characters of the suspicious message for accurate analysis.");
+      return;
+    }
     setLoading(true);
+    setLiveAIResult(null);
     try {
-      const res = await fetch('http://10.0.2.2:8000/api/call/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phone || "9998887771", audio_transcript_chunk: callTranscript })
-      });
-      const data = await res.json();
+      const data = await kavachAPI.analyzeSuspiciousText(callTranscript);
       setLiveAIResult(data);
     } catch (err) {
       console.log(err);
+      Alert.alert("Analysis Error", "Failed to connect to the intelligence server. Retrying...");
     } finally {
       setLoading(false);
     }
@@ -96,12 +97,30 @@ export default function ScanScreen() {
         </TouchableOpacity>
 
         {liveAIResult && (
-          <View style={[styles.resultMatrix, {borderColor: liveAIResult.color}]}>
+          <View style={styles.resultMatrix}>
             <View style={styles.flexRow}>
-              <Text style={styles.verdictTitle}>{liveAIResult.level}</Text>
-              <Text style={[styles.threatScore, {color: liveAIResult.color}]}>{liveAIResult.score}</Text>
+              <Text style={styles.verdictTitle}>{liveAIResult.scam_category}</Text>
+              <Text style={[
+                  styles.threatScore, 
+                  {color: liveAIResult.risk_level === 'CRITICAL' ? '#EF4444' : liveAIResult.risk_level === 'HIGH' ? '#F97316' : '#10B981'}
+              ]}>{liveAIResult.risk_level} ({liveAIResult.risk_score}%)</Text>
             </View>
-            <Text style={styles.actionText}>{liveAIResult.action_required}</Text>
+            <Text style={styles.actionText}>{liveAIResult.explanation}</Text>
+            {liveAIResult.red_flags && liveAIResult.red_flags.length > 0 && (
+                <View style={{marginTop: 10}}>
+                    {liveAIResult.red_flags.map((flag, idx) => (
+                        <Text key={idx} style={{color: '#FCA5A5', fontSize: 12}}>• {flag}</Text>
+                    ))}
+                </View>
+            )}
+            {liveAIResult.extracted_entities && liveAIResult.extracted_entities.length > 0 && (
+                <View style={{marginTop: 10}}>
+                    <Text style={{color: '#94A3B8', fontSize: 12, fontWeight: 'bold'}}>Extracted Intelligence:</Text>
+                    {liveAIResult.extracted_entities.map((ent, idx) => (
+                        <Text key={idx} style={{color: '#38BDF8', fontSize: 12}}>{ent.type}: {ent.value}</Text>
+                    ))}
+                </View>
+            )}
           </View>
         )}
       </View>

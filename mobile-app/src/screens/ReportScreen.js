@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { kavachAPI } from '../services/api';
 
 export default function ReportScreen() {
   const [suspectNumber, setSuspectNumber] = useState('');
@@ -19,18 +20,11 @@ export default function ReportScreen() {
 
     setLoading(true);
     try {
-      // Connecting directly to the live FastAPI backend engine
-      const res = await fetch('http://10.0.2.2:8000/api/report', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const data = await kavachAPI.submitIncidentReport({
           phone: suspectNumber,
           upi: upiId,
           details: scamDetails
-        })
       });
-      
-      const data = await res.json();
       
       if (data.success) {
         Alert.alert(
@@ -51,7 +45,7 @@ export default function ReportScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.contentContainer}>
       <Text style={styles.brandingHeader}>INCIDENT <Text style={styles.glowText}>REGISTRY</Text></Text>
       <Text style={styles.subtext}>Report threat signatures to synchronize database across the collective node network.</Text>
 

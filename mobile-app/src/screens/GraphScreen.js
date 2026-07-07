@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert, Dimensions } from 'react-native';
 import { THEME } from '../utils/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { kavachAPI } from '../services/api';
 
 const { width } = Dimensions.get('window');
 
@@ -17,27 +18,29 @@ export default function GraphScreen() {
 
   useEffect(() => {
     // 1. Initial Core Graph Metrics Fetch
-    fetch('http://10.0.2.2:8000/api/graph/matrix')
-      .then(res => res.json())
+    kavachAPI.getDashboardMetrics()
       .then(data => {
         setGraphData(data);
         setLoading(false);
       })
       .catch(err => {
         setLoading(false);
-        console.log("Graph Metrics Link Offline");
+        console.log("Graph Metrics Link Offline or Unauthorized. Using Mock Data.");
       });
 
     // 2. Real-Time Background Alerts Auto-Polling Interval (Every 5 seconds)
     const alertsInterval = setInterval(() => {
-      fetch('http://10.0.2.2:8000/api/intel/live-alerts')
-        .then(res => res.json())
+      kavachAPI.getLiveAlerts()
         .then(data => {
-          if (data.alerts) {
-            setLiveAlerts(data.alerts);
+          if (data.items && data.items.length > 0) {
+            setLiveAlerts(data.items.map(alert => ({
+                text: alert.description || "New Alert Detected",
+                time: "Just now",
+                type: alert.severity === "CRITICAL" ? "critical" : "warning"
+            })));
           }
         })
-        .catch(err => console.log("Live alerts engine polling offline"));
+        .catch(err => console.log("Live alerts engine polling offline or unauthorized"));
     }, 5000);
 
     return () => clearInterval(alertsInterval);

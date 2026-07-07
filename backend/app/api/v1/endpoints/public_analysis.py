@@ -11,6 +11,12 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Field, field_validator
 
 from app.models.case import ScamType, RiskLevel
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends, HTTPException
+from app.db.session import get_db
+from app.services.case_service import CaseService
+from app.schemas.case import CaseCreate
+from app.models.user import User, UserRole
 
 router = APIRouter()
 
@@ -19,6 +25,17 @@ router = APIRouter()
 
 class PublicAnalyzeRequest(BaseModel):
     text: str = Field(..., min_length=10, max_length=5000, description="Suspicious message text")
+
+
+class PublicReportRequest(BaseModel):
+    phone: Optional[str] = None
+    upi: Optional[str] = None
+    details: str = Field(..., min_length=10, max_length=5000)
+
+class PublicReportResponse(BaseModel):
+    success: bool
+    case_id: str
+    message: str
 
 
 class PublicEntityResult(BaseModel):
@@ -173,3 +190,48 @@ async def public_analyze(request: PublicAnalyzeRequest):
     **No authentication required.**  No data is persisted to the database.
     """
     return _run_heuristics(request.text)
+
+
+@router.post("/report", response_model=PublicReportResponse, summary="Submit a public incident report")
+async def public_report(request: PublicReportRequest, db: AsyncSession = Depends(get_db)):
+    """
+    Allows citizens to submit reports from the mobile app without an account.
+    """
+    from sqlalchemy import select
+    
+    # Try to find a default system citizen user or pick the first CITIZEN
+    result = await db.execute(select(User).where(User.role == UserRole.CITIZEN).limit(1))
+    system_user = result.scalar_one_or_none()
+    
+    if not system_user:
+        # Fallback to creating a dummy citizen if none exist
+        system_user = User(
+            email="anonymous_citizen@kavach.ai",
+            hashed_password="fake",
+            full_name="Anonymous Citizen",
+            role=UserRole.CITIZEN,
+            is_active=True
+        )
+        db.add(system_user)
+        await db.commit()
+        await db.refresh(system_user)
+
+    description = request.details
+    if request.phone:
+        description += f"\nSuspect Phone: {request.phone}"
+    if request.upi:
+        description += f"\nSuspect UPI: {request.upi}"
+
+    case_in = CaseCreate(
+        scam_type=ScamType.OTHER,
+        description=description,
+    )
+    
+    service = CaseService(db)
+    created_case = await service.create_case(case_in, system_user)
+    
+    return PublicReportResponse(
+        success=True,
+        case_id=str(created_case.id),
+        message="Incident submitted successfully"
+    )

@@ -193,21 +193,28 @@ export function ShieldHome() {
           </div>
           
           {(activeTab === 1 || activeTab === 2) && !text ? (
-            <div className="w-full h-40 bg-surface-elevated border border-dashed border-surface-raised rounded-md flex flex-col items-center justify-center mb-4 cursor-pointer hover:border-brand-cyan transition-colors" onClick={triggerUpload}>
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="w-8 h-8 text-brand-cyan animate-spin mb-2" />
-                  <p className="text-text-secondary text-sm">{analysisStage}</p>
-                </>
-              ) : (
-                <>
-                  <Upload className="w-8 h-8 text-text-muted mb-2" />
-                  <p className="text-text-secondary text-sm">Click to upload {activeTab === 1 ? 'Screenshot (.jpg, .png)' : 'Call Recording (.mp3, .wav)'}</p>
-                  <p className="text-text-muted text-xs mt-1">{activeTab === 1 ? '(Real OCR Extraction)' : '(Feature Currently Unavailable)'}</p>
-                </>
-              )}
-              <input type="file" className="hidden" ref={fileInputRef} onChange={handleRealUpload} accept={activeTab === 1 ? "image/*" : "audio/*"} disabled={activeTab === 2} />
-            </div>
+            activeTab === 2 ? (
+              <div className="w-full h-40 bg-surface-elevated border border-surface-raised rounded-md flex flex-col items-center justify-center mb-4 text-center p-4">
+                <Mic className="w-8 h-8 text-text-muted mb-2 opacity-50" />
+                <p className="text-text-secondary font-medium">Call recording analysis is not available in this version of KAVACH Shield yet.</p>
+              </div>
+            ) : (
+              <div className="w-full h-40 bg-surface-elevated border border-dashed border-surface-raised rounded-md flex flex-col items-center justify-center mb-4 cursor-pointer hover:border-brand-cyan transition-colors" onClick={triggerUpload}>
+                {isAnalyzing ? (
+                  <>
+                    <Loader2 className="w-8 h-8 text-brand-cyan animate-spin mb-2" />
+                    <p className="text-text-secondary text-sm">{analysisStage}</p>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-8 h-8 text-text-muted mb-2" />
+                    <p className="text-text-secondary text-sm">Click to upload Screenshot (.jpg, .png)</p>
+                    <p className="text-text-muted text-xs mt-1">(Real OCR Extraction)</p>
+                  </>
+                )}
+                <input type="file" className="hidden" ref={fileInputRef} onChange={handleRealUpload} accept="image/*" />
+              </div>
+            )
           ) : (
             <textarea
               value={text}

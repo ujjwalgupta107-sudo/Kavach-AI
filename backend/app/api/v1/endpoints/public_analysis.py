@@ -95,12 +95,12 @@ Required JSON format:
         )
     except Exception as e:
         print(f"LLM Analysis failed: {e}")
-        # Fallback
+        # Fallback for provider error
         return PublicAnalyzeResponse(
-            risk_score=10.0,
-            risk_level="LOW",
+            risk_score=0.0,
+            risk_level="UNABLE_TO_ANALYZE",
             scam_category="OTHER",
-            explanation="Failed to contact AI Engine. Assumed LOW risk fallback.",
+            explanation="The KAVACH AI engine is temporarily unavailable due to high load or a network error. Please try again in a few moments.",
             red_flags=[],
             extracted_entities=[],
             recommended_actions=["Retry analysis later."]
@@ -132,8 +132,16 @@ async def public_analyze_image(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"OCR failed: {e}")
         
-    if not extracted_text.strip():
-        extracted_text = "No readable text found in image."
+    if not extracted_text.strip() or len(extracted_text.strip()) < 10:
+        return PublicAnalyzeResponse(
+            risk_score=0.0,
+            risk_level="INSUFFICIENT_TEXT",
+            scam_category="OTHER",
+            explanation="We couldn't find enough readable text in this image to perform a scam analysis. Upload a clearer screenshot containing the suspicious message, payment request, email, or conversation.",
+            red_flags=[],
+            extracted_entities=[],
+            recommended_actions=[]
+        )
         
     return await _run_ai_analysis(extracted_text)
 

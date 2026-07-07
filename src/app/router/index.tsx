@@ -38,10 +38,13 @@ function RootLayout() {
   );
 }
 
+import { RouteErrorBoundary } from '../../components/common/RouteErrorBoundary';
+
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout />,
+    errorElement: <RouteErrorBoundary />,
     children: [
       {
         path: '/',

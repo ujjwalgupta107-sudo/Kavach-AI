@@ -3,14 +3,18 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Play, X, ChevronRight, Check } from 'lucide-react';
+import { useAuthStore } from '../../stores/authStore';
 
-const demoSteps = [
-  { path: '/', title: 'Welcome to Kavach AI', content: 'This is the public landing page. Citizens can learn about fraud and access the protection shield from here.', target: '/shield' },
-  { path: '/shield', title: 'Citizen Shield', content: 'Citizens can input suspicious messages or audio here. The AI will analyze it in real-time. Try clicking "Use sample message" and then "Analyze".', target: '/shield/result/mock-digital-arrest-1' },
-  { path: '/shield/result/mock-digital-arrest-1', title: 'Analysis Result', content: 'The AI extracts entities (phone, UPI) and flags the risk. This report is then securely routed to the Investigator Command Centre.', target: '/intelligence' },
-  { path: '/intelligence', title: 'Command Centre Dashboard', content: 'Investigators see a bird\'s eye view of all active threats and can immediately spot emerging clusters.', target: '/intelligence/cases/KAV-2026-0101' },
-  { path: '/intelligence/cases/KAV-2026-0101', title: 'Case Investigation', content: 'The investigator reviews the specific case details, evidence, and AI summary. Notice the Cluster ID tag.', target: '/intelligence/network' },
-  { path: '/intelligence/network', title: 'Fraud Network Graph', content: 'The graph reveals how this case connects to others through shared phones or UPI IDs, uncovering the larger syndicate.', target: '/' }
+const citizenSteps = [
+  { path: '/shield', title: 'Citizen Shield', content: 'Input suspicious messages or audio here. The AI will analyze it in real-time.', target: '/shield' },
+  { path: '/citizen/reports', title: 'Report History', content: 'Track your reported cases and analyses here.', target: '/citizen/reports' },
+  { path: '/citizen/assistant', title: 'Citizen Assistant', content: 'Chat with KAVACH AI to ask questions about your safety.', target: '/citizen/assistant' }
+];
+
+const investigatorSteps = [
+  { path: '/intelligence', title: 'Command Centre Dashboard', content: 'Investigators see a bird\'s eye view of all active threats and can immediately spot emerging clusters.', target: '/intelligence/cases' },
+  { path: '/intelligence/cases', title: 'Cases', content: 'View list of all reported cases.', target: '/intelligence/network' },
+  { path: '/intelligence/network', title: 'Fraud Network Graph', content: 'The graph reveals how cases connect through shared entities.', target: '/intelligence' }
 ];
 
 export function DemoWorkflow() {
@@ -18,24 +22,27 @@ export function DemoWorkflow() {
   const [currentStepIndex, setCurrentStepIndex] = useState(-1);
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuthStore();
 
-  // Allow starting demo via a global window flag or keyboard shortcut if needed,
-  // but for now, we'll just show a floating "Start Demo" button if not in demo mode.
+  const demoSteps = isAuthenticated && user?.role === 'INVESTIGATOR' ? investigatorSteps : citizenSteps;
 
   useEffect(() => {
-    // If demo is active, find which step we are on based on path
     if (currentStepIndex >= 0) {
       const step = demoSteps.find(s => s.path === location.pathname);
       if (step) {
          setCurrentStepIndex(demoSteps.indexOf(step));
       }
     }
-  }, [location.pathname, currentStepIndex]);
+  }, [location.pathname, currentStepIndex, demoSteps]);
 
   const startDemo = () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
     setIsVisible(true);
     setCurrentStepIndex(0);
-    navigate('/');
+    navigate(demoSteps[0].path);
   };
 
   const endDemo = () => {
@@ -53,6 +60,8 @@ export function DemoWorkflow() {
   };
 
   if (!isVisible && currentStepIndex === -1) {
+    if (!isAuthenticated) return null; // Or show a button linking to login
+
     return (
       <button 
         onClick={startDemo}

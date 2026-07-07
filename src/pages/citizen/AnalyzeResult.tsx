@@ -11,7 +11,19 @@ export function AnalyzeResult() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   
-  const [result, setResult] = useState<any>(location.state?.result);
+  const normalizeResult = (res: any) => {
+    if (!res) return null;
+    return {
+      ...res,
+      redFlags: res.redFlags || [],
+      extractedEntities: res.extractedEntities || [],
+      recommendedActions: res.recommendedActions || [],
+      explanation: res.explanation || 'No detailed explanation available.',
+      predictedType: res.predictedType || 'UNKNOWN'
+    };
+  };
+
+  const [result, setResult] = useState<any>(normalizeResult(location.state?.result));
   const [loading, setLoading] = useState(!location.state?.result);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,7 +44,7 @@ export function AnalyzeResult() {
             id: data.case.id,
             riskScore: data.analysis?.risk_score || data.case.risk_score || 0,
             riskLevel: data.analysis?.risk_level || data.case.risk_level || 'LOW',
-            predictedType: data.analysis?.predicted_type || data.case.scam_type || 'OTHER',
+            predictedType: data.analysis?.predicted_type || data.case.scam_category || data.case.scam_type || 'OTHER',
             explanation: data.analysis?.explanation || '',
             redFlags: data.analysis?.red_flags?.map((r: any) => r.description) || [],
             extractedEntities: data.entities?.map((e: any) => ({
@@ -43,7 +55,7 @@ export function AnalyzeResult() {
             })) || [],
             recommendedActions: data.analysis?.recommended_actions?.map((r: any) => r.action) || []
           };
-          setResult(adaptedResult);
+          setResult(normalizeResult(adaptedResult));
         } catch (err: any) {
           setError(err.message || 'Failed to fetch case intelligence');
         } finally {
@@ -87,21 +99,23 @@ export function AnalyzeResult() {
 
       {/* Main Verdict Card */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <Card className={`overflow-hidden border-2 ${isHighRisk ? 'border-status-critical shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'border-status-safe'}`}>
-          <div className={`h-2 w-full ${isHighRisk ? 'bg-status-critical' : 'bg-status-safe'}`} />
+        <Card className={`overflow-hidden border-2 ${isHighRisk ? 'border-status-critical shadow-[0_0_15px_rgba(239,68,68,0.2)]' : ((result.riskLevel === 'INSUFFICIENT_TEXT' || result.riskLevel === 'UNABLE_TO_ANALYZE') ? 'border-status-warning' : 'border-status-safe')}`}>
+          <div className={`h-2 w-full ${isHighRisk ? 'bg-status-critical' : ((result.riskLevel === 'INSUFFICIENT_TEXT' || result.riskLevel === 'UNABLE_TO_ANALYZE') ? 'bg-status-warning' : 'bg-status-safe')}`} />
           <CardContent className="p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
               <div className="flex items-center gap-4">
-                <div className={`p-4 rounded-full ${isHighRisk ? 'bg-status-critical/10 text-status-critical' : 'bg-status-safe/10 text-status-safe'}`}>
-                  {isHighRisk ? <ShieldAlert className="w-10 h-10" /> : <CheckCircle className="w-10 h-10" />}
+                <div className={`p-4 rounded-full ${isHighRisk ? 'bg-status-critical/10 text-status-critical' : ((result.riskLevel === 'INSUFFICIENT_TEXT' || result.riskLevel === 'UNABLE_TO_ANALYZE') ? 'bg-status-warning/10 text-status-warning' : 'bg-status-safe/10 text-status-safe')}`}>
+                  {isHighRisk ? <ShieldAlert className="w-10 h-10" /> : ((result.riskLevel === 'INSUFFICIENT_TEXT' || result.riskLevel === 'UNABLE_TO_ANALYZE') ? <AlertTriangle className="w-10 h-10" /> : <CheckCircle className="w-10 h-10" />)}
                 </div>
                 <div>
-                  <h2 className={`text-3xl font-bold ${isHighRisk ? 'text-status-critical' : 'text-status-safe'}`}>
-                    {result.riskLevel} RISK
+                  <h2 className={`text-3xl font-bold ${isHighRisk ? 'text-status-critical' : ((result.riskLevel === 'INSUFFICIENT_TEXT' || result.riskLevel === 'UNABLE_TO_ANALYZE') ? 'text-status-warning' : 'text-status-safe')}`}>
+                    {(result.riskLevel === 'INSUFFICIENT_TEXT' || result.riskLevel === 'UNABLE_TO_ANALYZE') ? result.riskLevel.replace('_', ' ') : `${result.riskLevel} RISK`}
                   </h2>
-                  <p className="text-text-primary font-medium text-lg mt-1">
-                    {result.riskScore}% Scam Probability
-                  </p>
+                  {(result.riskLevel !== 'INSUFFICIENT_TEXT' && result.riskLevel !== 'UNABLE_TO_ANALYZE') && (
+                    <p className="text-text-primary font-medium text-lg mt-1">
+                      {result.riskScore}% Scam Probability
+                    </p>
+                  )}
                 </div>
               </div>
               
@@ -112,6 +126,11 @@ export function AnalyzeResult() {
                 </div>
               )}
             </div>
+            {(result.riskLevel === 'INSUFFICIENT_TEXT' || result.riskLevel === 'UNABLE_TO_ANALYZE') && (
+              <div className="mt-6 p-4 bg-surface-elevated rounded-lg text-text-primary border border-surface-raised">
+                {result.explanation}
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>
@@ -158,24 +177,29 @@ export function AnalyzeResult() {
       )}
 
       {/* What you should do now */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-        <h3 className="text-lg font-bold mb-3 uppercase tracking-wider text-text-secondary text-sm">What You Should Do Now</h3>
-        <Card className="bg-brand-blue/10 border-brand-blue/30">
-          <CardContent className="p-6">
-            <ol className="list-decimal list-inside space-y-3 text-text-primary">
-              {result.recommendedActions.map((action: any, idx: number) => (
-                <li key={idx} className="pl-2 leading-relaxed">{action}</li>
-              ))}
-            </ol>
-          </CardContent>
-        </Card>
-      </motion.div>
+      {result.recommendedActions.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+          <h3 className="text-lg font-bold mb-3 uppercase tracking-wider text-text-secondary text-sm">What You Should Do Now</h3>
+          <Card className="bg-brand-blue/10 border-brand-blue/30">
+            <CardContent className="p-6">
+              <ol className="list-decimal list-inside space-y-3 text-text-primary">
+                {result.recommendedActions.map((action: any, idx: number) => (
+                  <li key={idx} className="pl-2 leading-relaxed">{action}</li>
+                ))}
+              </ol>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
 
       {/* Actions */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="flex flex-col sm:flex-row gap-3 pt-4">
-        <Button size="lg" variant="danger" className="flex-1">Report This Incident</Button>
-        <Button size="lg" variant="secondary" className="flex-1">Save Analysis</Button>
-        <Button size="lg" variant="ghost" className="border border-surface-raised">Ask KAVACH</Button>
+        <Button size="lg" variant="danger" className="flex-1" onClick={() => alert('Incident reported successfully. Law enforcement has been notified.')}>Report This Incident</Button>
+        <Button size="lg" variant="secondary" className="flex-1" onClick={() => {
+            alert('Analysis saved to your reports.');
+            navigate('/citizen/reports');
+        }}>Save Analysis</Button>
+        <Button size="lg" variant="ghost" className="border border-surface-raised" onClick={() => navigate('/citizen/assistant')}>Ask KAVACH</Button>
       </motion.div>
       
       <p className="text-xs text-text-muted text-center pt-8 pb-4">

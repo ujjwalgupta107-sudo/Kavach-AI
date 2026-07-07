@@ -31,7 +31,7 @@ class GeminiProvider(BaseLLMProvider):
             raise LLMProviderException("Gemini client is not initialized (google-genai missing)")
         
         try:
-            response = self.client.models.generate_content(
+            response = await self.client.aio.models.generate_content(
                 model=self.model,
                 contents=user_prompt,
                 config=self.types.GenerateContentConfig(

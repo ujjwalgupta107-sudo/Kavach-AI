@@ -35,6 +35,13 @@ export const caseService = {
     return apiClient.get<any>(`/api/v1/cases/${caseId}/intelligence`);
   },
 
+  async getSimilarCases(caseId: string) {
+    if (DATA_MODE === 'demo') {
+      return [];
+    }
+    return apiClient.get<any>(`/api/v1/intelligence/cases/${caseId}/similar`);
+  },
+
   async getCases() {
     if (DATA_MODE === 'demo') {
       const cases = await mockCaseService.getCases();

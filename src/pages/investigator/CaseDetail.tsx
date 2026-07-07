@@ -3,13 +3,16 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { caseService } from '../../services/api/caseService';
+import { AIInvestigationPanel } from '../../components/investigation/AIInvestigationPanel';
 import { ChevronLeft, MapPin, Calendar, AlertTriangle, ShieldAlert, Loader2 } from 'lucide-react';
 
 export function CaseDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [caseData, setCaseData] = useState<any>(null);
+  const [similarCases, setSimilarCases] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [similarLoading, setSimilarLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -20,6 +23,14 @@ export function CaseDetail() {
         setLoading(true);
         const data = await caseService.getCaseIntelligence(id);
         setCaseData(data);
+        
+        // Fetch similar cases in parallel or after
+        setSimilarLoading(true);
+        caseService.getSimilarCases(id)
+          .then(sim => setSimilarCases(sim || []))
+          .catch(e => console.error('Failed to load similar cases', e))
+          .finally(() => setSimilarLoading(false));
+
       } catch (e: any) {
         console.error(e);
         setError(e.message || 'Failed to fetch case data');
@@ -33,7 +44,7 @@ export function CaseDetail() {
   if (loading) return <div className="p-12 flex flex-col items-center justify-center text-text-muted"><Loader2 className="w-8 h-8 animate-spin mb-4" /><p>Loading case data...</p></div>;
   if (error || !caseData) return <div className="p-8 text-center text-status-critical">{error || 'Case not found'}</div>;
 
-  const tabs = ['overview', 'evidence', 'entities', 'connections', 'timeline', 'notes'];
+  const tabs = ['overview', 'ai-investigation', 'evidence', 'entities', 'connections', 'timeline', 'notes'];
   const caseInfo = caseData.case || caseData;
   const analysis = caseData.analysis || {};
   const entities = caseData.entities || [];
@@ -64,6 +75,9 @@ export function CaseDetail() {
           </div>
         </div>
         <div className="flex gap-2">
+          <Button variant="primary" onClick={() => setActiveTab('ai-investigation')} className="bg-brand-purple hover:bg-brand-purple-light text-white border-none">
+            Investigate with AI
+          </Button>
           <Button variant="secondary">Update Status</Button>
           <Button variant="danger">Escalate</Button>
         </div>
@@ -129,8 +143,39 @@ export function CaseDetail() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Semantically Similar Cases */}
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-sm font-semibold mb-4 text-text-secondary uppercase">Semantically Similar Cases</h3>
+                  <div className="space-y-4">
+                    {similarLoading ? (
+                      <div className="flex items-center gap-2 text-sm text-text-muted">
+                        <Loader2 className="w-4 h-4 animate-spin" /> Analyzing semantic similarity...
+                      </div>
+                    ) : similarCases.length > 0 ? (
+                      similarCases.map(sim => (
+                        <div key={sim.case_id} className="bg-surface-base border border-surface-raised p-3 rounded-lg hover:border-brand-cyan transition-colors cursor-pointer" onClick={() => navigate(`/intelligence/cases/${sim.case_id}`)}>
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="text-xs font-mono text-brand-cyan truncate max-w-[150px]" title={sim.case_id}>{sim.case_id.split('-')[0]}...</span>
+                            <span className="text-xs font-bold text-status-warning">{(sim.similarity_score * 100).toFixed(1)}% Match</span>
+                          </div>
+                          <div className="text-xs text-text-primary mb-1">{(sim.scam_type || '').replace('_', ' ')}</div>
+                          <div className="text-xs text-text-muted line-clamp-2" title={sim.preview}>{sim.preview}</div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-sm text-text-muted">No highly similar cases found.</div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
+        )}
+
+        {activeTab === 'ai-investigation' && (
+          <AIInvestigationPanel caseId={caseInfo.id} />
         )}
 
         {activeTab === 'evidence' && (

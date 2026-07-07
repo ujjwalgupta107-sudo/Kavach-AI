@@ -17,6 +17,7 @@ from app.models.entity import Entity, FraudCluster, CaseEntityLink
 from app.models.analysis import AnalysisResult, RedFlag, RecommendedAction
 from app.models.alert import Alert
 from app.models.audit import AuditLog, InvestigatorNote
+from app.models.agent_run import AgentRun, AgentFinding
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -38,6 +38,8 @@ api_router.include_router(evidence.router, prefix="/evidence", tags=["Evidence"]
 api_router.include_router(intelligence.router, prefix="/intelligence", tags=["Intelligence"])
 api_router.include_router(analysis.router, prefix="/analysis", tags=["AI Analysis"])
 api_router.include_router(assistant.router, prefix="/assistant", tags=["AI Assistant"])
+from app.api.v1.endpoints import agents
+api_router.include_router(agents.router, prefix="/agents", tags=["Agents"])
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboard"])
 api_router.include_router(alerts.router, prefix="/alerts", tags=["Alerts"])
 api_router.include_router(clusters.router, prefix="/clusters", tags=["Clusters"])

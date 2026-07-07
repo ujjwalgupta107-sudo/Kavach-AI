@@ -33,3 +33,23 @@ async def get_all_entities(
     """
     repo = EntityRepository(db)
     return await repo.get_all_entities()
+
+from app.services.semantic_service import SemanticService
+from fastapi import HTTPException
+import uuid
+from typing import Dict, Any
+
+@router.get("/cases/{case_id}/similar", response_model=List[Dict[str, Any]])
+async def get_similar_cases(
+    case_id: uuid.UUID,
+    current_user: Annotated[User, Depends(require_investigator)],
+    db: Annotated[AsyncSession, Depends(get_db)]
+):
+    """
+    Returns top semantically similar cases based on narrative description.
+    """
+    try:
+        similar = await SemanticService.get_similar_cases(case_id, db, top_k=5, threshold=0.3)
+        return similar
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch similar cases: {str(e)}")

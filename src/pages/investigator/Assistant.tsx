@@ -4,7 +4,7 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Send, Bot, User, Sparkles } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
-import { api } from '../../lib/api';
+import { apiClient } from '../../services/api/client';
 
 interface Message {
   id: string;
@@ -12,12 +12,6 @@ interface Message {
   content: string;
   isStreaming?: boolean;
 }
-
-const mockResponses: Record<string, string> = {
-  'default': 'I can help analyze cases, summarize evidence, or identify patterns across clusters. What would you like to know?',
-  'summarize case 101': 'Case KAV-2026-0101 involves a Digital Arrest scam in Delhi. The victim received a call from +91 •••• 3210 claiming to be a CBI officer. ₹50,000 was requested to suspicious@upi. The entities are part of cluster FC-019. I recommend blocking the associated domain secure-verification.net.',
-  'what is cluster fc-019': 'Cluster FC-019 is a high-risk network operating primarily out of the Delhi region. It specializes in authority impersonation (CBI/Customs). It currently links 3 active cases, 1 phone number, 1 UPI ID, and a fake verification domain.',
-};
 
 export function Assistant() {
   const { user } = useAuthStore();
@@ -49,7 +43,7 @@ export function Assistant() {
     setLoading(true);
 
     try {
-      const { data } = await api.post('/assistant/chat', { message: userMsg });
+      const data = await apiClient.post<any>('/api/v1/assistant/chat', { message: userMsg });
       setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: data.reply }]);
     } catch (error) {
       setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: 'Connection Error: Could not reach the assistant service.' }]);

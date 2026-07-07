@@ -39,17 +39,17 @@ export interface AgentRun {
 
 export const agentService = {
   startInvestigation: async (caseId: string): Promise<{ id: string; status: AgentRunStatus; message: string }> => {
-    const response = await apiClient.post(`/agents/investigations/${caseId}`) as any;
+    const response = await apiClient.post(`/api/v1/agents/investigations/${caseId}`) as any;
     return response.data;
   },
 
   getRun: async (runId: string): Promise<AgentRun> => {
-    const response = await apiClient.get(`/agents/runs/${runId}`) as any;
+    const response = await apiClient.get(`/api/v1/agents/runs/${runId}`) as any;
     return response.data;
   },
 
   getCaseRuns: async (caseId: string): Promise<AgentRun[]> => {
-    const response = await apiClient.get(`/agents/runs`, { params: { case_id: caseId } }) as any;
+    const response = await apiClient.get(`/api/v1/agents/runs`, { params: { case_id: caseId } }) as any;
     return response.data;
   }
 };

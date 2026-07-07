@@ -55,128 +55,54 @@ class PublicAnalyzeResponse(BaseModel):
 
 # ─── Inline heuristics (reuses the same logic as AnalysisService) ─────────────
 
-def _run_heuristics(text: str) -> PublicAnalyzeResponse:
-    t = text.lower()
-    score = 0.1
-    flags: List[str] = []
-    entities: List[PublicEntityResult] = []
-    scam = ScamType.OTHER
+import json
+from app.core.llm_provider import get_llm_provider
 
-    # Digital Arrest / Law Enforcement Impersonation
-    if any(x in t for x in ["cbi", "police", "arrest", "ed", "enforcement directorate",
-                              "customs", "trai", "telecom", "supreme court", "high court"]):
-        score += 0.4
-        flags.append("Impersonation of law enforcement or government authority.")
-        if scam == ScamType.OTHER:
-            scam = ScamType.DIGITAL_ARREST
-
-    # Drugs / Illegal substances in parcel
-    if any(x in t for x in ["illegal", "substance", "drugs", "mdma", "narcotics", "contraband"]) \
-            and ("parcel" in t or "courier" in t):
-        score += 0.3
-        flags.append("Accusation of illegal substances in a parcel.")
-        scam = ScamType.DIGITAL_ARREST
-
-    # Account freeze / legal threats
-    if any(x in t for x in ["freeze", "suspended", "blocked", "deactivated"]) \
-            and any(x in t for x in ["account", "card", "aadhaar", "pan"]):
-        score += 0.3
-        flags.append("Threat of account freeze or suspension.")
-        if scam == ScamType.OTHER:
-            scam = ScamType.PHISHING
-
-    # Urgency
-    if any(x in t for x in ["urgent", "immediately", "within 24 hours", "action required", "act now"]):
-        score += 0.2
-        flags.append("High sense of urgency to bypass critical thinking.")
-
-    # Secrecy / Isolation
-    if any(x in t for x in ["do not tell", "secret", "alone", "confidential", "isolate", "family"]):
-        score += 0.3
-        flags.append("Instruction to maintain secrecy or isolate the victim.")
-        if scam == ScamType.OTHER:
-            scam = ScamType.DIGITAL_ARREST
-
-    # Financial Demands
-    if any(x in t for x in ["transfer", "pay", "deposit", "send money", "rs", "rupees", "amount"]):
-        score += 0.3
-        flags.append("Explicit demand for money transfer.")
-
-    # OTP / PIN / Passwords
-    if any(x in t for x in ["otp", "pin", "password", "cvv", "verification code"]):
-        score += 0.4
-        flags.append("Request for sensitive authentication details (OTP/PIN).")
-        if scam == ScamType.OTHER:
-            scam = ScamType.OTP_THEFT
-
-    # Remote Access Apps
-    if any(x in t for x in ["anydesk", "teamviewer", "rustdesk", "quicksupport", "screen share"]):
-        score += 0.5
-        flags.append("Request to install remote access applications.")
-
-    # Crypto
-    if any(x in t for x in ["crypto", "bitcoin", "usdt", "wallet", "binance", "investment"]):
-        score += 0.3
-        flags.append("Demand for cryptocurrency payment or investment.")
-        if scam == ScamType.OTHER:
-            scam = ScamType.INVESTMENT_SCAM
-
-    # URLs / Links
-    if "http" in t or "www." in t or ".com" in t or ".in" in t:
-        if "update" in t or "kyc" in t or "verify" in t:
-            score += 0.3
-            flags.append("Suspicious link prompting for KYC or verification.")
-            if scam == ScamType.OTHER:
-                scam = ScamType.PHISHING
-
-    score = round(min(max(score, 0.0), 1.0), 4)
-
-    if score > 0.8:
-        level = RiskLevel.CRITICAL
-    elif score > 0.6:
-        level = RiskLevel.HIGH
-    elif score > 0.3:
-        level = RiskLevel.MEDIUM
-    else:
-        level = RiskLevel.LOW
-
-    # Simple entity extraction (phone / UPI / URL)
-    import re
-    for phone in re.findall(r'\+?[\d\s\-]{10,13}', text):
-        cleaned = re.sub(r'[\s\-]', '', phone)
-        if len(cleaned) >= 10:
-            entities.append(PublicEntityResult(type="PHONE", value=cleaned[:15]))
-
-    for upi in re.findall(r'[\w.\-]+@[a-z]+', text):
-        entities.append(PublicEntityResult(type="UPI_ID", value=upi))
-
-    for url in re.findall(r'https?://[^\s]+|www\.[^\s]+', text):
-        entities.append(PublicEntityResult(type="URL", value=url[:100]))
-
-    actions = [
-        "Do not share any personal information, OTP, or banking credentials.",
-        "Block and report the sender through your messaging app.",
-        "Report the incident at cybercrime.gov.in or call 1930.",
-        "Save all evidence (screenshots, call recordings) before blocking.",
-    ]
-    if not flags:
-        actions = ["This message appears legitimate. Stay vigilant and verify through official channels."]
-
-    explanation = (
-        f"KAVACH AI detected {len(flags)} risk indicator(s) in this message. "
-        f"Risk score: {round(score * 100)}%. "
-        f"Classified as: {scam.value.replace('_', ' ')}."
-    ) if flags else "No significant scam indicators were detected in this message."
-
-    return PublicAnalyzeResponse(
-        risk_score=round(score * 100, 1),
-        risk_level=level.value,
-        scam_category=scam.value,
-        explanation=explanation,
-        red_flags=flags,
-        extracted_entities=entities,
-        recommended_actions=actions,
-    )
+async def _run_ai_analysis(text: str) -> PublicAnalyzeResponse:
+    try:
+        llm = get_llm_provider(allow_mock=True)
+        system_prompt = """You are KAVACH AI, an elite fraud detection intelligence system.
+Analyze the following text and return a JSON object ONLY. Do not use markdown blocks.
+Required JSON format:
+{
+  "risk_score": 95.5,
+  "risk_level": "CRITICAL", // LOW, MEDIUM, HIGH, CRITICAL
+  "scam_category": "DIGITAL_ARREST",
+  "explanation": "A clear explanation of why this is suspicious.",
+  "red_flags": ["Demand for money", "Urgency"],
+  "extracted_entities": [
+    {"type": "PHONE", "value": "1234567890"},
+    {"type": "UPI_ID", "value": "fraud@upi"}
+  ],
+  "recommended_actions": ["Block number", "Report to cyber cell"]
+}"""
+        response_text = await llm.generate(system_prompt=system_prompt, user_prompt=text)
+        
+        # Clean potential markdown wrapping
+        cleaned = response_text.replace("```json", "").replace("```", "").strip()
+        data = json.loads(cleaned)
+        
+        return PublicAnalyzeResponse(
+            risk_score=float(data.get("risk_score", 0.0)),
+            risk_level=data.get("risk_level", "LOW"),
+            scam_category=data.get("scam_category", "OTHER"),
+            explanation=data.get("explanation", "Analysis complete."),
+            red_flags=data.get("red_flags", []),
+            extracted_entities=[PublicEntityResult(**e) for e in data.get("extracted_entities", [])],
+            recommended_actions=data.get("recommended_actions", [])
+        )
+    except Exception as e:
+        print(f"LLM Analysis failed: {e}")
+        # Fallback
+        return PublicAnalyzeResponse(
+            risk_score=10.0,
+            risk_level="LOW",
+            scam_category="OTHER",
+            explanation="Failed to contact AI Engine. Assumed LOW risk fallback.",
+            red_flags=[],
+            extracted_entities=[],
+            recommended_actions=["Retry analysis later."]
+        )
 
 
 # ─── Endpoint ─────────────────────────────────────────────────────────────────
@@ -189,7 +115,7 @@ async def public_analyze(request: PublicAnalyzeRequest):
 
     **No authentication required.**  No data is persisted to the database.
     """
-    return _run_heuristics(request.text)
+    return await _run_ai_analysis(request.text)
 
 
 @router.post("/report", response_model=PublicReportResponse, summary="Submit a public incident report")

@@ -14,7 +14,14 @@ export function InvestigatorLayout() {
   }
 
   if (user?.role !== 'INVESTIGATOR' && user?.role !== 'ADMIN') {
-    return <Navigate to="/shield" replace />;
+    return (
+      <div className="min-h-screen bg-surface-base flex items-center justify-center">
+        <div className="bg-surface-raised p-8 rounded-xl border border-red-500 max-w-md text-center">
+          <h2 className="text-2xl font-bold text-red-500 mb-4">Access Denied</h2>
+          <p className="text-gray-300">Investigator access required. Your account does not have clearance for the Intelligence Platform.</p>
+        </div>
+      </div>
+    );
   }
 
   return (

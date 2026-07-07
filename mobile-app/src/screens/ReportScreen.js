@@ -20,10 +20,15 @@ export default function ReportScreen() {
 
     setLoading(true);
     try {
+      // Connecting directly to the live FastAPI backend engine via centralized API
       const data = await kavachAPI.submitIncidentReport({
-          phone: suspectNumber,
-          upi: upiId,
-          details: scamDetails
+        phone: suspectNumber,
+        upi: upiId,
+        details: scamDetails,
+        city: 'Unknown',
+        lat: 0.0,
+        lng: 0.0,
+        scam_type: 'REPORTED_SUSPICIOUS'
       });
       
       if (data.success) {
@@ -45,7 +50,7 @@ export default function ReportScreen() {
   };
 
   return (
-    <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.contentContainer}>
+    <ScrollView style={styles.container}>
       <Text style={styles.brandingHeader}>INCIDENT <Text style={styles.glowText}>REGISTRY</Text></Text>
       <Text style={styles.subtext}>Report threat signatures to synchronize database across the collective node network.</Text>
 

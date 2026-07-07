@@ -38,7 +38,7 @@ export default function HomeScreen({ navigation }) {
           if (data.risk_level !== 'LOW') {
             Alert.alert(
               "🛑 KAVACH TA-AI REAL-TIME INTERCEPT",
-              `CRITICAL THREAT FLAG: ${data.risk_score}% Risk Probability!\n\nCategory: ${data.scam_category}`,
+              `CRITICAL THREAT FLAG: ${data.risk_score}% Risk Probability!\n\nPattern: ${data.scam_type}`,
               [
                 { 
                   text: "VIEW FULL AI ANALYSIS", 
@@ -124,7 +124,10 @@ export default function HomeScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
+        {/* COGNITIVE RELATION SHIELD LINK */}
+        <Text style={styles.sectionHeaderTitle}>Fraud Network Intelligence</Text>
         {/* Fraud Network Intelligence Link Removed for Citizen App */}
+
       </ScrollView>
 
       {/* BRAIN CONTROLLER KEY MODULE */}

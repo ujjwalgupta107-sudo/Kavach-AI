@@ -6,10 +6,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 export default function AnalysisScreen({ route, navigation }) {
   const { transcript, aiData } = route.params || {
     transcript: "Spoke with agent claiming to be from Supreme Court. Demanded immediate verification fee of ₹50,000 regarding illegal parcel.",
-    aiData: { risk_level: 'CRITICAL', risk_score: 94, scam_category: "DIGITAL ARREST", explanation: "Impersonation of authority.", red_flags: ["Requested ₹50,000"] }
+    aiData: { alert_triggered: true, scam_probability: 94, pattern: "Digital Arrest Variant", recommendation: "Stop communication immediately." }
   };
-  
-  const isDanger = aiData.risk_level !== 'LOW';
 
   return (
     <ScrollView style={styles.container}>
@@ -27,24 +25,21 @@ export default function AnalysisScreen({ route, navigation }) {
 
       {/* AI FRAUD IDENTIFICATION EVALUATION CARD */}
       <Text style={styles.sectionTitle}>AI Fraud Risk Assessment</Text>
-      <View style={[styles.aiCard, isDanger && styles.dangerCard]}>
+      <View style={[styles.aiCard, aiData.alert_triggered && styles.dangerCard]}>
         <View style={styles.aiHeader}>
-          <MaterialCommunityIcons name="robot" size={24} color={isDanger ? "#EF4444" : "#10B981"} />
-          <Text style={[styles.aiTitle, { color: isDanger ? "#EF4444" : "#10B981" }]}>
-            {isDanger ? "CRITICAL FRAUD TARGET IDENTIFIED" : "CLEAN CONVERSATION PROTOCOL"}
+          <MaterialCommunityIcons name="robot" size={24} color={aiData.alert_triggered ? "#EF4444" : "#10B981"} />
+          <Text style={[styles.aiTitle, { color: aiData.alert_triggered ? "#EF4444" : "#10B981" }]}>
+            {aiData.alert_triggered ? "CRITICAL FRAUD TARGET IDENTIFIED" : "CLEAN CONVERSATION PROTOCOL"}
           </Text>
         </View>
 
         <View style={styles.rowMetric}>
-          <Text style={styles.metricLabel}>Risk Level:</Text>
-          <Text style={[styles.metricValue, { color: isDanger ? '#EF4444' : '#10B981' }]}>{aiData.risk_level} ({aiData.risk_score}%)</Text>
+          <Text style={styles.metricLabel}>Scam Probability:</Text>
+          <Text style={[styles.metricValue, { color: '#EF4444' }]}>{aiData.scam_probability}%</Text>
         </View>
 
-        <Text style={styles.aiDesc}><Text style={{ fontWeight: 'bold' }}>Category:</Text> {aiData.scam_category}</Text>
-        <Text style={styles.aiDesc}><Text style={{ fontWeight: 'bold' }}>Analysis:</Text> {aiData.explanation}</Text>
-        {aiData.recommended_actions && aiData.recommended_actions.length > 0 && (
-            <Text style={styles.aiDesc}><Text style={{ fontWeight: 'bold' }}>Action:</Text> {aiData.recommended_actions[0]}</Text>
-        )}
+        <Text style={styles.aiDesc}><Text style={{ fontWeight: 'bold' }}>Pattern Detected:</Text> {aiData.pattern}</Text>
+        <Text style={styles.aiDesc}><Text style={{ fontWeight: 'bold' }}>AI Recommendation:</Text> {aiData.recommendation}</Text>
       </View>
 
       <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('Graph')}>

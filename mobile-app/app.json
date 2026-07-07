@@ -10,10 +10,14 @@
     },
     "android": {
       "package": "com.ujjwal.kavachapp",
-      "permissions": []
-    },
-    "plugins": [
-      "expo-font"
-    ]
+      "permissions": [
+        "android.permission.READ_PHONE_STATE",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ANSWER_PHONE_CALLS",
+        "android.permission.READ_CALL_LOG",
+        "android.permission.PROCESS_OUTGOING_CALLS",
+        "android.permission.SYSTEM_ALERT_WINDOW"
+      ]
+    }
   }
 }

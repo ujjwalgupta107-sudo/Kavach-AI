@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuthStore } from '../../stores/authStore';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 
-export function Login() {
+export function Register() {
   const [email, setEmail] = useState('');
+  const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('CITIZEN');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const login = useAuthStore((state: any) => state.login);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,44 +19,21 @@ export function Login() {
     setLoading(true);
 
     try {
-      // Create x-www-form-urlencoded data for OAuth2
-      const formData = new URLSearchParams();
-      formData.append('username', email);
-      formData.append('password', password);
-
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/v1/auth/login`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/v1/auth/register`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formData.toString()
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, full_name: fullName, password, role })
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Login failed');
+        throw new Error(errorData.detail || 'Registration failed');
       }
 
-      const data = await response.json();
-      
-      // Fetch user profile
-      const userResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/v1/auth/me`, {
-        headers: { 'Authorization': `Bearer ${data.token.access_token}` }
-      });
-      
-      if (!userResponse.ok) {
-        throw new Error('Failed to fetch user profile');
-      }
-      
-      const userData = await userResponse.json();
-
-      login(data.token.access_token, userData);
-
-      if (userData.role === 'INVESTIGATOR') {
-        navigate('/intelligence');
-      } else {
-        navigate('/shield');
-      }
+      // Automatically redirect to login after successful registration
+      navigate('/login');
     } catch (err: any) {
-      setError(err.message || 'An error occurred during login.');
+      setError(err.message || 'An error occurred during registration.');
     } finally {
       setLoading(false);
     }
@@ -65,7 +42,7 @@ export function Login() {
   return (
     <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-6 bg-surface-elevated/50 backdrop-blur border-surface-raised">
-        <h2 className="text-2xl font-bold text-text-primary mb-6 text-center">Sign In to Kavach AI</h2>
+        <h2 className="text-2xl font-bold text-text-primary mb-6 text-center">Create Kavach Account</h2>
         
         {error && (
           <div className="mb-4 p-3 bg-status-critical/10 border border-status-critical/50 text-status-critical text-sm rounded">
@@ -75,9 +52,20 @@ export function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1">Email / Username</label>
+            <label className="block text-sm font-medium text-text-secondary mb-1">Full Name</label>
             <Input 
               type="text" 
+              value={fullName} 
+              onChange={(e: any) => setFullName(e.target.value)} 
+              required 
+              placeholder="Enter your name" 
+              className="w-full"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-1">Email</label>
+            <Input 
+              type="email" 
               value={email} 
               onChange={(e: any) => setEmail(e.target.value)} 
               required 
@@ -96,15 +84,26 @@ export function Login() {
               className="w-full"
             />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-1">Account Type</label>
+            <select 
+              value={role} 
+              onChange={(e: any) => setRole(e.target.value)}
+              className="w-full bg-[#020617] text-white p-2 border border-surface-raised rounded-md"
+            >
+              <option value="CITIZEN">Citizen (Shield Platform)</option>
+              <option value="INVESTIGATOR">Investigator (Intelligence Platform)</option>
+            </select>
+          </div>
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Registering...' : 'Register'}
           </Button>
         </form>
-        
+
         <div className="mt-4 text-center">
           <p className="text-sm text-text-secondary">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-brand-cyan hover:underline">Register</Link>
+            Already have an account?{' '}
+            <Link to="/login" className="text-brand-cyan hover:underline">Sign In</Link>
           </p>
         </div>
       </Card>

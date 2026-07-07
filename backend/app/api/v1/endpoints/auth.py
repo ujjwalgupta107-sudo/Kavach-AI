@@ -30,6 +30,7 @@ async def register(
         email=user_in.email,
         full_name=user_in.full_name,
         password_hash=get_password_hash(user_in.password),
+        role=user_in.role
     )
     
     return await user_repo.create(user)

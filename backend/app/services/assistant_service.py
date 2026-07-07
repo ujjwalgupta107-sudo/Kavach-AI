@@ -1,18 +1,20 @@
 from app.schemas.assistant import ChatRequest, ChatResponse
+from app.core.llm_provider import get_llm_provider
 
 class AIAssistantService:
     async def chat(self, request: ChatRequest) -> ChatResponse:
         """
-        Mock Chatbot response. Connects to LLM in production.
+        Chatbot response. Connects to LLM.
         """
-        query = request.message.lower()
-        reply = "I'm KAVACH AI, your investigation assistant. How can I help you analyze this case?"
+        system_prompt = "You are KAVACH AI Assistant, an expert cybercrime investigator AI. You assist human investigators by analyzing case data, summarizing evidence, identifying fraud patterns, and recommending tactical actions. Be professional, concise, and analytical."
         
-        if "summary" in query or "summarize" in query:
-            reply = "Based on the case details, this appears to be a coordinated financial fraud involving unauthorized UPI transfers. The suspect entity has been flagged in 3 other jurisdictions."
-        elif "entity" in query or "entities" in query:
-            reply = "I've extracted 2 phone numbers and 1 UPI ID from the evidence. They are linked to a high-risk cluster."
-        elif "action" in query or "next" in query:
-            reply = "I recommend freezing the associated bank accounts and generating a subpoena request for the telecom operator."
-            
-        return ChatResponse(reply=reply)
+        try:
+            llm = get_llm_provider(allow_mock=True)
+            reply = await llm.generate(
+                system_prompt=system_prompt,
+                user_prompt=request.message,
+                temperature=0.3
+            )
+            return ChatResponse(reply=reply)
+        except Exception as e:
+            return ChatResponse(reply=f"System Error: Unable to reach KAVACH Cognitive Engine. Fallback diagnostic: {str(e)}")

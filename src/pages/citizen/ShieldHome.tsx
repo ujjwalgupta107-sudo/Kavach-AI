@@ -1,20 +1,63 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent } from '../../components/ui/Card';
-import { MessageSquareWarning, Image as ImageIcon, Mic, FileText, Loader2 } from 'lucide-react';
+import { MessageSquareWarning, Image as ImageIcon, Mic, FileText, Loader2, Upload } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { apiClient, API_BASE_URL } from '../../services/api/client';
 
 const SAMPLE_SCAM_MESSAGE = "Your Aadhaar has been linked to an illegal parcel. A CBI case has been registered. Do not disconnect this call or inform your family. Transfer ₹50,000 to the verification account immediately.";
 
 export function ShieldHome() {
+  const [activeTab, setActiveTab] = useState(0); // 0: Message, 1: Screenshot, 2: Audio, 3: Describe
   const [text, setText] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisStage, setAnalysisStage] = useState('');
   const [error, setError] = useState<string | null>(null);
+  
+  // Simulated file states
+  const [fileName, setFileName] = useState<string | null>(null);
+  
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const tabs = [
+    { icon: MessageSquareWarning, label: 'Suspicious Message' },
+    { icon: ImageIcon, label: 'Screenshot' },
+    { icon: Mic, label: 'Call Recording' },
+    { icon: FileText, label: 'Describe Incident' },
+  ];
+
+  const handleSimulatedUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setFileName(file.name);
+    setIsAnalyzing(true);
+    setError(null);
+    
+    if (activeTab === 1) {
+      setAnalysisStage('Extracting text from image via OCR...');
+      setTimeout(() => {
+        setText("SIMULATED OCR RESULT:\nDear customer, your bank account is blocked. Update KYC immediately at http://kyc-update-bank.in or account will be frozen.");
+        setIsAnalyzing(false);
+        setAnalysisStage('');
+      }, 1500);
+    } else if (activeTab === 2) {
+      setAnalysisStage('Transcribing audio via Speech-to-Text...');
+      setTimeout(() => {
+        setText("SIMULATED TRANSCRIPTION:\nHello sir, I am calling from TRAI. Your number will be blocked in 2 hours because of illegal activities. Please press 9 for verification.");
+        setIsAnalyzing(false);
+        setAnalysisStage('');
+      }, 2000);
+    }
+  };
+
+  const triggerUpload = () => {
+    fileInputRef.current?.click();
+  };
 
   const handleAnalyze = async () => {
     if (!text.trim()) return;
@@ -82,18 +125,18 @@ export function ShieldHome() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { icon: MessageSquareWarning, label: 'Suspicious Message', active: true },
-          { icon: ImageIcon, label: 'Screenshot', active: false },
-          { icon: Mic, label: 'Call Recording', active: false },
-          { icon: FileText, label: 'Describe Incident', active: false },
-        ].map((item, i) => {
+        {tabs.map((item, i) => {
           const Icon = item.icon;
+          const active = activeTab === i;
           return (
-            <Card key={i} className={`cursor-pointer transition-colors ${item.active ? 'border-brand-cyan bg-brand-cyan/5' : 'hover:border-surface-raised/80'}`}>
+            <Card 
+              key={i} 
+              onClick={() => { setActiveTab(i); setFileName(null); if(i!==1 && i!==2) setText(''); }}
+              className={`cursor-pointer transition-colors ${active ? 'border-brand-cyan bg-brand-cyan/5' : 'hover:border-surface-raised/80'}`}
+            >
               <CardContent className="p-6 flex flex-col items-center justify-center text-center gap-4 h-32">
-                <Icon className={`w-8 h-8 ${item.active ? 'text-brand-cyan' : 'text-text-muted'}`} />
-                <span className={`font-medium ${item.active ? 'text-brand-cyan' : 'text-text-secondary'}`}>{item.label}</span>
+                <Icon className={`w-8 h-8 ${active ? 'text-brand-cyan' : 'text-text-muted'}`} />
+                <span className={`font-medium ${active ? 'text-brand-cyan' : 'text-text-secondary'}`}>{item.label}</span>
               </CardContent>
             </Card>
           );
@@ -103,22 +146,49 @@ export function ShieldHome() {
       <Card className="border-surface-raised bg-surface-base shadow-lg">
         <CardContent className="p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-semibold">Text Analysis</h3>
-            <button 
-              onClick={() => setText(SAMPLE_SCAM_MESSAGE)}
-              className="text-xs text-brand-cyan hover:underline"
-            >
-              Use sample message
-            </button>
+            <h3 className="font-semibold">{tabs[activeTab].label} Analysis</h3>
+            {(activeTab === 0 || activeTab === 3) && (
+              <button 
+                onClick={() => setText(SAMPLE_SCAM_MESSAGE)}
+                className="text-xs text-brand-cyan hover:underline"
+              >
+                Use sample message
+              </button>
+            )}
           </div>
           
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            disabled={isAnalyzing}
-            placeholder="Paste the suspicious SMS, WhatsApp message, email, or conversation here."
-            className="w-full h-40 bg-surface-elevated border border-surface-raised rounded-md p-4 text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-cyan resize-none mb-4"
-          />
+          {(activeTab === 1 || activeTab === 2) && !text ? (
+            <div className="w-full h-40 bg-surface-elevated border border-dashed border-surface-raised rounded-md flex flex-col items-center justify-center mb-4 cursor-pointer hover:border-brand-cyan transition-colors" onClick={triggerUpload}>
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="w-8 h-8 text-brand-cyan animate-spin mb-2" />
+                  <p className="text-text-secondary text-sm">{analysisStage}</p>
+                </>
+              ) : (
+                <>
+                  <Upload className="w-8 h-8 text-text-muted mb-2" />
+                  <p className="text-text-secondary text-sm">Click to upload {activeTab === 1 ? 'Screenshot (.jpg, .png)' : 'Call Recording (.mp3, .wav)'}</p>
+                  <p className="text-text-muted text-xs mt-1">(Simulated upload & extraction)</p>
+                </>
+              )}
+              <input type="file" className="hidden" ref={fileInputRef} onChange={handleSimulatedUpload} accept={activeTab === 1 ? "image/*" : "audio/*"} />
+            </div>
+          ) : (
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              disabled={isAnalyzing || (activeTab === 1 || activeTab === 2)}
+              placeholder={activeTab === 3 ? "Describe the incident or phone call in detail..." : "Paste the suspicious SMS, WhatsApp message, email, or conversation here."}
+              className="w-full h-40 bg-surface-elevated border border-surface-raised rounded-md p-4 text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-cyan resize-none mb-4"
+            />
+          )}
+
+          {fileName && text && (activeTab === 1 || activeTab === 2) && (
+            <div className="mb-4 text-sm text-brand-cyan flex items-center justify-between bg-brand-cyan/10 p-2 rounded">
+              <span>Extracted from: {fileName}</span>
+              <button onClick={() => {setText(''); setFileName(null);}} className="hover:underline">Clear File</button>
+            </div>
+          )}
 
           {error && (
             <div className="mb-4 p-3 bg-status-critical/10 border border-status-critical/50 text-status-critical text-sm rounded">
@@ -133,7 +203,7 @@ export function ShieldHome() {
             <div className="flex gap-2">
               <Button 
                 variant="ghost" 
-                onClick={() => { setText(''); setError(null); }}
+                onClick={() => { setText(''); setError(null); setFileName(null); }}
                 disabled={isAnalyzing || !text}
               >
                 Clear
@@ -143,7 +213,7 @@ export function ShieldHome() {
                 disabled={isAnalyzing || !text.trim()}
                 className="w-32"
               >
-                {isAnalyzing ? (
+                {isAnalyzing && (activeTab === 0 || activeTab === 3 || (text && fileName)) ? (
                   <div className="flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin" />
                     Analyzing
@@ -153,7 +223,7 @@ export function ShieldHome() {
             </div>
           </div>
           
-          {isAnalyzing && (
+          {isAnalyzing && (activeTab === 0 || activeTab === 3 || (text && fileName)) && (
             <div className="mt-4 p-3 bg-brand-cyan/10 border border-brand-cyan/20 rounded-md text-sm text-brand-cyan flex items-center justify-center gap-3">
                <Loader2 className="w-4 h-4 animate-spin" />
                {analysisStage}

@@ -6,7 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './src/screens/HomeScreen';
 import ScanScreen from './src/screens/ScanScreen';
 import ReportScreen from './src/screens/ReportScreen';
-
+import GraphScreen from './src/screens/GraphScreen';
 import AnalysisScreen from './src/screens/AnalysisScreen';
 
 const Stack = createNativeStackNavigator();
@@ -37,7 +37,11 @@ export default function App() {
           component={ReportScreen} 
           options={{ title: '🚨 THREAT REGISTRY' }} 
         />
-
+        <Stack.Screen 
+          name="Graph" 
+          component={GraphScreen} 
+          options={{ title: '📊 COGNITIVE GRAPH' }} 
+        />
         <Stack.Screen 
           name="Analysis" 
           component={AnalysisScreen} 

@@ -6,6 +6,7 @@ import { InvestigatorLayout } from '../layouts/InvestigatorLayout';
 
 import { Home } from '../../pages/public/Home';
 import { Login } from '../../pages/public/Login';
+import { Register } from '../../pages/public/Register';
 import { ShieldHome } from '../../pages/citizen/ShieldHome';
 import { Dashboard } from '../../pages/investigator/Dashboard';
 import { Alerts } from '../../pages/investigator/Alerts';
@@ -48,6 +49,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <Home /> },
           { path: 'login', element: <Login /> },
+          { path: 'register', element: <Register /> },
           { path: 'platform', element: <Platform /> },
           { path: 'how-it-works', element: <HowItWorks /> },
           { path: 'fraud-awareness', element: <FraudAwareness /> },

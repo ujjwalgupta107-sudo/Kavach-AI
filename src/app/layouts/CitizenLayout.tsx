@@ -65,6 +65,9 @@ export function CitizenLayout() {
         </Link>
         <div className="flex items-center gap-4">
           <div className="text-sm text-text-muted">Citizen Interface</div>
+          <Link to="/citizen/assistant" className="text-sm text-text-secondary hover:text-brand-cyan transition-colors">
+            AI Assistant
+          </Link>
           <button
             className="text-sm text-text-secondary hover:text-white transition-colors"
             onClick={() => useAuthStore.getState().logout()}

@@ -71,6 +71,7 @@ export const router = createBrowserRouter([
         element: <CitizenLayout />,
         children: [
           { path: 'reports', element: <ReportHistory /> },
+          { path: 'assistant', element: <Assistant /> },
         ],
       },
       {

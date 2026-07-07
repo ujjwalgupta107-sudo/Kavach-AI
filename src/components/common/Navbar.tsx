@@ -24,21 +24,41 @@ export function Navbar() {
           {isAuthenticated ? (
             <div className="flex items-center gap-4">
               <span className="text-sm font-medium text-text-secondary hidden sm:block">
-                {user?.email}
+                {user?.email} ({user?.role})
               </span>
+              {user?.role === 'INVESTIGATOR' && (
+                <Link to="/intelligence" className="text-sm font-medium text-text-secondary hover:text-brand-cyan hidden sm:block">
+                  Intelligence Platform
+                </Link>
+              )}
+              {user?.role === 'CITIZEN' && (
+                <>
+                  <Link to="/shield" className="text-sm font-medium text-text-secondary hover:text-brand-cyan hidden sm:block">
+                    Shield
+                  </Link>
+                  <Link to="/citizen/assistant" className="text-sm font-medium text-text-secondary hover:text-brand-cyan hidden sm:block">
+                    AI Assistant
+                  </Link>
+                </>
+              )}
               <button onClick={() => logout()} className="text-sm font-medium text-text-secondary hover:text-brand-cyan flex items-center gap-1">
                 <LogOut className="w-4 h-4" />
                 <span className="hidden sm:inline">Logout</span>
               </button>
             </div>
           ) : (
-            <Link to="/login" className="text-sm font-medium text-text-secondary hover:text-text-primary hidden sm:block">
-              Sign In
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link to="/login" className="text-sm font-medium text-text-secondary hover:text-text-primary hidden sm:block">
+                Sign In
+              </Link>
+              <Link to="/register" className="text-sm font-medium text-text-secondary hover:text-text-primary hidden sm:block">
+                Register
+              </Link>
+              <Link to="/shield">
+                <Button size="sm">Open KAVACH Shield</Button>
+              </Link>
+            </div>
           )}
-          <Link to="/shield">
-            <Button size="sm">Open KAVACH Shield</Button>
-          </Link>
         </div>
       </div>
     </header>

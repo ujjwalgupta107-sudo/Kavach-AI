@@ -32,7 +32,7 @@ export function Login() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Login failed');
+        throw new Error(errorData.error?.message || errorData.detail || 'Login failed');
       }
 
       const data = await response.json();

@@ -92,6 +92,10 @@ export function ShieldHome() {
 
   const handleAnalyze = async () => {
     if (!text.trim()) return;
+    if (text.trim().length < 10) {
+      setError('Please provide at least 10 characters for a meaningful analysis.');
+      return;
+    }
     
     setIsAnalyzing(true);
     setError(null);
@@ -241,7 +245,7 @@ export function ShieldHome() {
               </Button>
               <Button 
                 onClick={handleAnalyze} 
-                disabled={isAnalyzing || !text.trim()}
+                disabled={isAnalyzing || text.trim().length < 10}
                 className="w-32"
               >
                 {isAnalyzing && (activeTab === 0 || activeTab === 3 || (text && fileName)) ? (

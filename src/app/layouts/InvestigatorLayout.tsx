@@ -1,4 +1,4 @@
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, Link } from 'react-router-dom';
 import { Sidebar } from '../../components/common/Sidebar';
 import { useAuthStore } from '../../stores/authStore';
 
@@ -18,7 +18,10 @@ export function InvestigatorLayout() {
       <div className="min-h-screen bg-surface-base flex items-center justify-center">
         <div className="bg-surface-raised p-8 rounded-xl border border-red-500 max-w-md text-center">
           <h2 className="text-2xl font-bold text-red-500 mb-4">Access Denied</h2>
-          <p className="text-gray-300">Investigator access required. Your account does not have clearance for the Intelligence Platform.</p>
+          <p className="text-gray-300 mb-6">Investigator access required. Your account does not have clearance for the Intelligence Platform.</p>
+          <Link to="/shield" className="px-4 py-2 bg-brand-blue text-white rounded hover:bg-opacity-80 transition-opacity">
+            Return to Citizen Tools
+          </Link>
         </div>
       </div>
     );

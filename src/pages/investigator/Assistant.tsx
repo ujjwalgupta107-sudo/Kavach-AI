@@ -3,6 +3,8 @@ import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Send, Bot, User, Sparkles } from 'lucide-react';
+import { useAuthStore } from '../../stores/authStore';
+import { api } from '../../lib/api';
 
 interface Message {
   id: string;
@@ -18,8 +20,14 @@ const mockResponses: Record<string, string> = {
 };
 
 export function Assistant() {
+  const { user } = useAuthStore();
+  const isCitizen = user?.role === 'CITIZEN';
+  
   const [messages, setMessages] = useState<Message[]>([
-    { id: '1', role: 'assistant', content: 'Hello Investigator. I am the KAVACH AI assistant. I have access to all cases, entity graphs, and live alerts. How can I assist you today?' }
+    { id: '1', role: 'assistant', content: isCitizen ? 
+        'Hello Citizen. I am the KAVACH AI assistant. I can guide you on reporting scams and staying safe. How can I help?' : 
+        'Hello Investigator. I am the KAVACH AI assistant. I have access to all cases, entity graphs, and live alerts. How can I assist you today?' 
+    }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,7 +39,7 @@ export function Assistant() {
     }
   }, [messages]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || loading) return;
 
@@ -40,21 +48,14 @@ export function Assistant() {
     setMessages(prev => [...prev, { id: Date.now().toString(), role: 'user', content: userMsg }]);
     setLoading(true);
 
-    // Simulate AI thinking and response
-    setTimeout(() => {
-      const lowerInput = userMsg.toLowerCase();
-      let responseText = mockResponses['default'];
-      
-      for (const [key, val] of Object.entries(mockResponses)) {
-        if (lowerInput.includes(key) && key !== 'default') {
-          responseText = val;
-          break;
-        }
-      }
-
-      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: responseText }]);
+    try {
+      const { data } = await api.post('/assistant/chat', { message: userMsg });
+      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: data.reply }]);
+    } catch (error) {
+      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: 'Connection Error: Could not reach the assistant service.' }]);
+    } finally {
       setLoading(false);
-    }, 1200);
+    }
   };
 
   return (
@@ -65,7 +66,7 @@ export function Assistant() {
         </div>
         <div>
           <h2 className="text-2xl font-bold">KAVACH AI Assistant</h2>
-          <p className="text-text-secondary">Your intelligent investigation partner.</p>
+          <p className="text-text-secondary">{isCitizen ? 'Your safety companion.' : 'Your intelligent investigation partner.'}</p>
         </div>
       </div>
 

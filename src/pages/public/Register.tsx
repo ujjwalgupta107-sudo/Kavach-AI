@@ -8,6 +8,7 @@ export function Register() {
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState('CITIZEN');
   const [investigatorCode, setInvestigatorCode] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +21,10 @@ export function Register() {
     setLoading(true);
 
     try {
+      if (password !== confirmPassword) {
+        throw new Error("Passwords do not match");
+      }
+
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/v1/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -34,7 +39,7 @@ export function Register() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Registration failed');
+        throw new Error(errorData.error?.message || errorData.detail || 'Registration failed');
       }
 
       // Automatically redirect to login after successful registration
@@ -86,6 +91,17 @@ export function Register() {
               type="password" 
               value={password} 
               onChange={(e: any) => setPassword(e.target.value)} 
+              required 
+              placeholder="••••••••" 
+              className="w-full"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-1">Confirm Password</label>
+            <Input 
+              type="password" 
+              value={confirmPassword} 
+              onChange={(e: any) => setConfirmPassword(e.target.value)} 
               required 
               placeholder="••••••••" 
               className="w-full"

@@ -18,9 +18,6 @@
         "android.permission.PROCESS_OUTGOING_CALLS",
         "android.permission.SYSTEM_ALERT_WINDOW"
       ]
-    },
-    "plugins": [
-      "expo-font"
-    ]
+    }
   }
 }

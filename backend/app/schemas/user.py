@@ -10,7 +10,8 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
-    role: Optional[UserRole] = UserRole.CITIZEN
+    role: UserRole = UserRole.CITIZEN
+    investigator_code: Optional[str] = None
 
 class UserUpdate(BaseModel):
     full_name: Optional[str] = None

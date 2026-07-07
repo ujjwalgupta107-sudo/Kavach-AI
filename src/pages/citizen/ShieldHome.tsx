@@ -30,7 +30,7 @@ export function ShieldHome() {
     { icon: FileText, label: 'Describe Incident' },
   ];
 
-  const handleSimulatedUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRealUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
@@ -40,18 +40,49 @@ export function ShieldHome() {
     
     if (activeTab === 1) {
       setAnalysisStage('Extracting text from image via OCR...');
-      setTimeout(() => {
-        setText("SIMULATED OCR RESULT:\nDear customer, your bank account is blocked. Update KYC immediately at http://kyc-update-bank.in or account will be frozen.");
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const response = await fetch(`${API_BASE_URL}/api/v1/public/analyze-image`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+           throw new Error('Image analysis failed');
+        }
+        
+        const data = await response.json();
+        // Since we hit /analyze-image, it actually returns the full AnalysisResponse directly!
+        // So we can navigate to the result screen!
         setIsAnalyzing(false);
-        setAnalysisStage('');
-      }, 1500);
+        const adapted = {
+          id: 'public-analysis',
+          riskScore: data.risk_score,
+          riskLevel: data.risk_level,
+          predictedType: data.scam_category,
+          explanation: data.explanation,
+          redFlags: data.red_flags,
+          extractedEntities: data.extracted_entities.map((ent: any) => ({
+            type: ent.type,
+            value: ent.value,
+            maskedValue: null,
+            connectedCaseIds: [],
+          })),
+          recommendedActions: data.recommended_actions,
+        };
+        navigate('/shield/result/public', { state: { result: adapted } });
+      } catch (err: any) {
+        setError(err.message || 'Image processing failed');
+        setIsAnalyzing(false);
+      }
     } else if (activeTab === 2) {
-      setAnalysisStage('Transcribing audio via Speech-to-Text...');
+      setAnalysisStage('Audio transcription is currently unavailable (model size constraint).');
       setTimeout(() => {
-        setText("SIMULATED TRANSCRIPTION:\nHello sir, I am calling from TRAI. Your number will be blocked in 2 hours because of illegal activities. Please press 9 for verification.");
         setIsAnalyzing(false);
         setAnalysisStage('');
-      }, 2000);
+      }, 3000);
     }
   };
 
@@ -168,10 +199,10 @@ export function ShieldHome() {
                 <>
                   <Upload className="w-8 h-8 text-text-muted mb-2" />
                   <p className="text-text-secondary text-sm">Click to upload {activeTab === 1 ? 'Screenshot (.jpg, .png)' : 'Call Recording (.mp3, .wav)'}</p>
-                  <p className="text-text-muted text-xs mt-1">(Simulated upload & extraction)</p>
+                  <p className="text-text-muted text-xs mt-1">{activeTab === 1 ? '(Real OCR Extraction)' : '(Feature Currently Unavailable)'}</p>
                 </>
               )}
-              <input type="file" className="hidden" ref={fileInputRef} onChange={handleSimulatedUpload} accept={activeTab === 1 ? "image/*" : "audio/*"} />
+              <input type="file" className="hidden" ref={fileInputRef} onChange={handleRealUpload} accept={activeTab === 1 ? "image/*" : "audio/*"} disabled={activeTab === 2} />
             </div>
           ) : (
             <textarea

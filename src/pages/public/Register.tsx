@@ -9,6 +9,7 @@ export function Register() {
   const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('CITIZEN');
+  const [investigatorCode, setInvestigatorCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -22,7 +23,13 @@ export function Register() {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/v1/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, full_name: fullName, password, role })
+        body: JSON.stringify({ 
+          email, 
+          full_name: fullName, 
+          password, 
+          role,
+          ...(role === 'INVESTIGATOR' && { investigator_code: investigatorCode }) 
+        })
       });
 
       if (!response.ok) {
@@ -95,6 +102,19 @@ export function Register() {
               <option value="INVESTIGATOR">Investigator (Intelligence Platform)</option>
             </select>
           </div>
+          {role === 'INVESTIGATOR' && (
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-1">Authorization Code</label>
+              <Input 
+                type="text" 
+                value={investigatorCode} 
+                onChange={(e: any) => setInvestigatorCode(e.target.value)} 
+                required 
+                placeholder="Enter access code" 
+                className="w-full border-status-warning"
+              />
+            </div>
+          )}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Registering...' : 'Register'}
           </Button>

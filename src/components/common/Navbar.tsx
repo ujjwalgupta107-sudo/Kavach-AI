@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Button } from '../ui/Button';
-import { Shield, User as UserIcon, LogOut } from 'lucide-react';
+import { Shield, LogOut } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 
 export function Navbar() {

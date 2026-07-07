@@ -9,10 +9,12 @@ Shield page can display real results without requiring a citizen account.
 from typing import List, Optional
 from fastapi import APIRouter
 from pydantic import BaseModel, Field, field_validator
+import easyocr
+import io
 
 from app.models.case import ScamType, RiskLevel
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from app.db.session import get_db
 from app.services.case_service import CaseService
 from app.schemas.case import CaseCreate
@@ -117,6 +119,23 @@ async def public_analyze(request: PublicAnalyzeRequest):
     """
     return await _run_ai_analysis(request.text)
 
+@router.post("/analyze-image", response_model=PublicAnalyzeResponse, summary="Public OCR image analysis")
+async def public_analyze_image(file: UploadFile = File(...)):
+    """
+    Performs OCR on an uploaded screenshot and runs AI analysis.
+    """
+    content = await file.read()
+    try:
+        reader = easyocr.Reader(['en'], gpu=False)
+        result = reader.readtext(content)
+        extracted_text = " ".join([text for _, text, _ in result])
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"OCR failed: {e}")
+        
+    if not extracted_text.strip():
+        extracted_text = "No readable text found in image."
+        
+    return await _run_ai_analysis(extracted_text)
 
 @router.post("/report", response_model=PublicReportResponse, summary="Submit a public incident report")
 async def public_report(request: PublicReportRequest, db: AsyncSession = Depends(get_db)):

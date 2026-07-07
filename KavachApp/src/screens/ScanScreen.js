@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
-import { kavachAPI } from '../services/api';
 
 export default function ScanScreen() {
   const [phone, setPhone] = useState('');
@@ -14,16 +13,15 @@ export default function ScanScreen() {
     if (!phone.trim()) return;
     setLoading(true);
     try {
-      const data = await kavachAPI.checkPhoneReputation(phone);
-      setTruecallerData({
-        total_reports: data.risk_score > 50 ? Math.floor(data.risk_score / 10) : 0,
-        action: data.risk_level === 'CRITICAL' ? 'High Risk - Block' : 'Safe'
-      });
+      // Direct Live API Hit to Backend Engine
+      const res = await fetch(`http://10.0.2.2:8000/api/phone/check/${phone}`);
+      const data = await res.json();
+      setTruecallerData(data);
       
-      if (data.risk_level === 'CRITICAL') {
+      if (data.trigger_emergency_ui) {
         Alert.alert(
           "🚨 CRITICAL SCAMMER WARNING",
-          `KAVACH-Truecaller Intel: This number has high risk! Block Immediately.`,
+          `KAVACH-Truecaller Intel: This number has ${data.total_reports} ACTIVE Fraud Complaints! Block Immediately.`,
           [{ text: "BLOCK NUMBER", style: "destructive" }, { text: "DISMISS" }]
         );
       }
@@ -39,13 +37,13 @@ export default function ScanScreen() {
     if (!callTranscript.trim()) return;
     setLoading(true);
     try {
-      const data = await kavachAPI.analyzeSuspiciousText(callTranscript);
-      setLiveAIResult({
-        color: data.risk_level === 'CRITICAL' || data.risk_level === 'HIGH' ? '#EF4444' : '#10B981',
-        level: data.risk_level,
-        score: `${data.risk_score}%`,
-        action_required: data.scam_category + ': ' + data.explanation
+      const res = await fetch('http://10.0.2.2:8000/api/call/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phone || "9998887771", audio_transcript_chunk: callTranscript })
       });
+      const data = await res.json();
+      setLiveAIResult(data);
     } catch (err) {
       console.log(err);
     } finally {

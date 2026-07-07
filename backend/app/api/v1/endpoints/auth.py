@@ -12,6 +12,8 @@ from app.repositories.user_repository import UserRepository
 from app.core.security import verify_password, get_password_hash, create_access_token, create_refresh_token
 from app.core.exceptions import UnauthorizedException, ValidationException
 from app.api.deps import get_current_user
+from app.models.user import UserRole
+import os
 
 router = APIRouter()
 
@@ -26,6 +28,11 @@ async def register(
     if existing_user:
         raise ValidationException("Email already registered")
         
+    if user_in.role == UserRole.INVESTIGATOR:
+        env_code = os.getenv("INVESTIGATOR_REGISTRATION_CODE", "KAVACH_TEST_CODE_99")
+        if user_in.investigator_code != env_code:
+            raise UnauthorizedException("Invalid Investigator Authorization Code")
+            
     user = User(
         email=user_in.email,
         full_name=user_in.full_name,

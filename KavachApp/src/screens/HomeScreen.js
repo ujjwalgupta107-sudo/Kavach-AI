@@ -3,7 +3,6 @@ import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Alert, ActivityIn
 import KavachLogo from '../components/KavachLogo';
 import { THEME } from '../utils/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { kavachAPI } from '../services/api';
 
 const { width } = Dimensions.get('window');
 
@@ -32,7 +31,12 @@ export default function HomeScreen({ navigation }) {
       
       setTimeout(async () => {
         try {
-          const data = await kavachAPI.analyzeSuspiciousText(userConversationMock);
+          const response = await fetch('http://10.0.2.2:8000/api/call/analyze-speech', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ transcript: userConversationMock })
+          });
+          const data = await response.json();
           setIsListening(false);
 
           if (data.alert_triggered) {
@@ -66,6 +70,11 @@ export default function HomeScreen({ navigation }) {
       {/* GLOSSY HEADER BAR */}
       <View style={styles.header}>
         <KavachLogo />
+        <TouchableOpacity style={styles.radarBadge} onPress={() => navigation.navigate('Graph')}>
+          <View style={styles.liveIndicatorPulse} />
+          <MaterialCommunityIcons name="lightning-bolt" size={14} color="#00F2FE" />
+          <Text style={styles.badgeTextLive}>INTELLIGENCE</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -123,7 +132,16 @@ export default function HomeScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
-
+        {/* COGNITIVE RELATION SHIELD LINK */}
+        <Text style={styles.sectionHeaderTitle}>Fraud Network Intelligence</Text>
+        <TouchableOpacity style={styles.networkOverviewCard} onPress={() => navigation.navigate('Graph')}>
+          <View style={styles.networkHeader}>
+            <MaterialCommunityIcons name="routes" size={22} color="#9061F9" />
+            <Text style={styles.networkTitleText}>NetworkX Relational Database Cluster</Text>
+            <MaterialCommunityIcons name="chevron-right" size={20} color="#64748B" style={{ marginLeft: 'auto' }} />
+          </View>
+          <Text style={styles.networkBodyText}>Visualize multi-layered syndicate connections, transaction linkages, and flagged cross-linked edges instantly.</Text>
+        </TouchableOpacity>
 
       </ScrollView>
 

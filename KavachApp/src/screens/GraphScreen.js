@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert, Dimensions } from 'react-native';
 import { THEME } from '../utils/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { kavachAPI } from '../services/api';
 
 const { width } = Dimensions.get('window');
 
@@ -18,7 +17,8 @@ export default function GraphScreen() {
 
   useEffect(() => {
     // 1. Initial Core Graph Metrics Fetch
-    kavachAPI.getGraphMatrix()
+    fetch('http://10.0.2.2:8000/api/graph/matrix')
+      .then(res => res.json())
       .then(data => {
         setGraphData(data);
         setLoading(false);
@@ -30,10 +30,11 @@ export default function GraphScreen() {
 
     // 2. Real-Time Background Alerts Auto-Polling Interval (Every 5 seconds)
     const alertsInterval = setInterval(() => {
-      kavachAPI.getLiveAlerts()
+      fetch('http://10.0.2.2:8000/api/intel/live-alerts')
+        .then(res => res.json())
         .then(data => {
-          if (data && data.data) {
-            setLiveAlerts(data.data);
+          if (data.alerts) {
+            setLiveAlerts(data.alerts);
           }
         })
         .catch(err => console.log("Live alerts engine polling offline"));

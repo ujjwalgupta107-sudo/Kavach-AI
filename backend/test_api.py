@@ -8,7 +8,7 @@ def print_section(title):
 
 # 1. Login
 print_section("Auth")
-r_inv = httpx.post(f"{base_url}/auth/login", data={"username": "investigator@kavach.ai", "password": "test1234"})
+r_inv = httpx.post(f"{base_url}/auth/login", data={"username": "investigator@kavach.ai", "password": "admin123"})
 inv_token = r_inv.json()["token"]["access_token"]
 print("Investigator Token:", inv_token[:20] + "...")
 

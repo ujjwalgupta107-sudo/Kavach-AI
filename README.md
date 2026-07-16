@@ -31,3 +31,8 @@ KAVACH AI is an AI-powered fraud detection, citizen protection, and fraud-networ
 2. Install dependencies: `npm install`
 3. Start the development server: `npm run dev`
 4. Build for production: `npm run build`
+
+##For Mobile Install (Android Studio)
+
+1. npx expo start
+2. r for reload

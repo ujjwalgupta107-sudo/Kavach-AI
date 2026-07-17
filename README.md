@@ -1,38 +1,123 @@
-# KAVACH AI Frontend
+# KAVACH AI: Advanced Fraud Detection & Intelligence Platform
 
-KAVACH AI is an AI-powered fraud detection, citizen protection, and fraud-network intelligence platform. This repository contains the complete frontend prototype built with React, Vite, and Tailwind CSS.
+KAVACH AI is a comprehensive, AI-powered platform designed to protect citizens from scams and empower law enforcement investigators with actionable fraud intelligence. It leverages real-time threat analysis, complex fraud-network graphing, and geospatial tracking to stay ahead of sophisticated criminal operations.
 
-## Modules
+The platform consists of a **FastAPI Python Backend**, a **React Web Dashboard**, and a **React Native Mobile Application**.
 
-1. **Citizen Shield**: Public-facing portal for citizens to upload suspicious messages, audio, or files for real-time AI analysis.
-2. **Investigator Command Centre**: Intelligence dashboard for law enforcement to track emerging fraud clusters, visualize complex criminal networks, and manage cases.
+## 🌟 Key Features
 
-## Features
+### Citizen Shield
+- **Threat Analysis:** Citizens can upload suspicious texts, audio, or files for instant AI-based risk scoring.
+- **AI Chat Assistant:** A smart conversational assistant that guides citizens on how to report scams and protect their personal information.
+- **Reporting History:** Citizens can track the status of their reports and see investigator feedback.
 
-- **Real-Time Threat Analysis Flow**: Interactive simulation of text/audio pattern detection.
-- **Fraud Network Explorer**: Cytoscape.js powered interactive graph mapping relationships between cases and extracted entities.
-- **Geospatial Intelligence Map**: Leaflet-powered heatmaps highlighting scam hotspots.
-- **AI Assistant**: Specialized chat interface for investigators to quickly summarize case intelligence.
-- **Guided Interactive Demo**: A built-in workflow to demonstrate the entire platform's capabilities.
+### Investigator Command Centre
+- **Fraud Network Explorer:** An interactive Cytoscape.js graph that visualizes connections between scam cases, phone numbers, crypto wallets, and IP addresses to uncover organized fraud rings.
+- **Geospatial Intelligence Map:** A heat map highlighting scam hotspots to help prioritize regional enforcement.
+- **Case Management:** Tools for investigators to review citizen reports, update case statuses, and communicate safety updates.
+- **Real-Time Dashboards:** Key performance indicators and metrics tracking the volume and types of ongoing fraud.
 
-## Tech Stack
+## 🚀 Tech Stack
 
-- **Framework**: React 18 + Vite
-- **Styling**: Tailwind CSS
-- **Routing**: React Router DOM
-- **Icons**: Lucide React
-- **Charts**: Recharts
-- **Maps**: React Leaflet
-- **Graphs**: React Cytoscape.js
+### Frontend (Web)
+- **Framework:** React 19 + Vite + TypeScript
+- **Styling:** Tailwind CSS + Framer Motion
+- **Data Fetching & State:** React Query + Zustand
+- **Visualization:** React Leaflet (Maps), Cytoscape.js (Network Graphs), Recharts (Metrics)
 
-## Getting Started
+### Mobile App (React Native)
+- **Framework:** React Native + Expo + TypeScript
+- **Navigation:** React Navigation (Native Stack & Bottom Tabs)
+- **Styling:** Tailwind CSS (via NativeWind/custom classes)
 
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Start the development server: `npm run dev`
-4. Build for production: `npm run build`
+### Backend (Python)
+- **Framework:** FastAPI
+- **Database:** SQLite (aiosqlite) with SQLAlchemy ORM and Alembic for migrations
+- **Testing:** Pytest
 
-##For Mobile Install (Android Studio)
+## 🛠️ Getting Started (Local Development)
 
-1. npx expo start
-2. r for reload
+### Prerequisites
+- **Node.js:** v18+
+- **Python:** v3.10+
+- **Git**
+
+### 1. Backend Setup
+The backend API needs to be running for the frontend and mobile apps to function correctly.
+```bash
+# Navigate to the backend directory
+cd backend
+
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start the FastAPI server
+python -m uvicorn app.main:app --reload --port 8000
+```
+The backend API will be available at `http://localhost:8000`.
+
+### 2. Web Frontend Setup
+```bash
+# Navigate to the root project directory (if not already there)
+cd ..
+
+# Install dependencies
+npm install
+
+# Start the Vite development server
+npm run dev
+```
+The web app will be available at `http://localhost:5173`.
+
+### 3. Mobile App Setup
+```bash
+# Navigate to the mobile app directory
+cd mobile-app
+
+# Install dependencies
+npm install
+
+# Start the Expo development server
+npm start
+```
+You can run the app in an Android/iOS emulator or on a physical device using the Expo Go app.
+
+## 🔑 Test Credentials
+
+Use the following pre-seeded credentials to quickly test the application locally:
+
+**Investigator Account (Access to Command Centre):**
+- **Email:** `investigator@kavach.ai`
+- **Password:** `admin123`
+
+**Citizen Account (Access to KAVACH Shield):**
+- **Email:** `citizen@example.com`
+- **Password:** `password123`
+
+## 📦 Building for Production
+
+### Web
+```bash
+npm run build
+```
+This generates the optimized static files in the `dist/` directory.
+
+### Android APK (Release Build)
+To build a production-ready signed `.apk` file locally:
+```bash
+cd mobile-app
+npx expo prebuild --platform android --clean
+```
+Ensure your `release.keystore` is placed in `android/app/` and configured in `build.gradle`, then run:
+```bash
+cd android
+./gradlew assembleRelease
+```
+The generated APK will be located at `android/app/build/outputs/apk/release/app-release.apk`.
+
+## 📜 License
+This project is proprietary and built for demonstration and internal use.

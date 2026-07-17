@@ -10,8 +10,10 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { useAuthStore } from '../../stores/authStore';
 import { API_BASE_URL } from '../../services/api/client';
-import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
+import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../../constants/theme';
 import { AuthStackParamList } from '../../navigation/AuthStack';
+import { Ionicons } from '@expo/vector-icons';
+import { Logo } from '../../components/ui/Logo';
 
 type LoginNavProp = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
 
@@ -78,18 +80,20 @@ export function LoginScreen() {
         {/* Logo / Brand */}
         <View style={styles.brandSection}>
           <View style={styles.logoContainer}>
-            <Text style={styles.logoIcon}>🛡️</Text>
+            <Logo size={56} />
           </View>
-          <Text style={styles.brandTitle}>KAVACH AI</Text>
+          <Text style={styles.brandTitle}>KAVACH</Text>
           <Text style={styles.brandSubtitle}>Cyber Fraud Protection Platform</Text>
         </View>
 
-        <Card style={styles.card}>
+        <Card style={styles.card} variant="glow">
           <View style={styles.cardInner}>
-            <Text style={styles.title}>Sign In</Text>
+            <Text style={styles.title}>Welcome Back</Text>
+            <Text style={styles.subtitle}>Sign in to your account to continue</Text>
 
             {error && (
               <View style={styles.errorBox}>
+                <Ionicons name="warning" size={16} color={colors.status.critical} style={{ marginRight: 8 }} />
                 <Text style={styles.errorText}>{error}</Text>
               </View>
             )}
@@ -113,8 +117,8 @@ export function LoginScreen() {
                 secureTextEntry
               />
 
-              <Button onPress={handleSubmit} loading={loading} style={styles.submitButton}>
-                {loading ? 'Signing in...' : 'Sign In'}
+              <Button onPress={handleSubmit} loading={loading} style={styles.submitButton} size="lg">
+                {loading ? 'Authenticating...' : 'Sign In'}
               </Button>
             </View>
 
@@ -143,53 +147,64 @@ const styles = StyleSheet.create({
   },
   brandSection: {
     alignItems: 'center',
-    marginBottom: spacing['3xl'],
+    marginBottom: spacing['4xl'],
   },
   logoContainer: {
-    width: 72,
-    height: 72,
+    width: 80,
+    height: 80,
     borderRadius: borderRadius.xl,
-    backgroundColor: 'rgba(6, 182, 212, 0.15)',
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.3)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing.lg,
-  },
-  logoIcon: {
-    fontSize: 36,
+    marginBottom: spacing.xl,
+    ...shadows.glow('rgba(168, 85, 247, 0.2)'),
   },
   brandTitle: {
-    fontSize: fontSize['2xl'],
+    fontSize: fontSize['3xl'],
     fontWeight: fontWeight.bold,
-    color: colors.brand.cyan,
-    letterSpacing: 2,
+    color: colors.text.primary,
+    letterSpacing: 4,
   },
   brandSubtitle: {
     fontSize: fontSize.sm,
-    color: colors.text.muted,
+    color: colors.brand.cyan,
     marginTop: spacing.xs,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   card: {
-    backgroundColor: 'rgba(30, 41, 59, 0.7)',
+    backgroundColor: 'rgba(24, 24, 27, 0.8)', // Zinc-900 with transparency
   },
   cardInner: {
     padding: spacing['2xl'],
   },
   title: {
-    fontSize: fontSize.xl,
+    fontSize: fontSize['2xl'],
     fontWeight: fontWeight.bold,
     color: colors.text.primary,
+    textAlign: 'center',
+    marginBottom: spacing.xs,
+  },
+  subtitle: {
+    fontSize: fontSize.sm,
+    color: colors.text.muted,
     textAlign: 'center',
     marginBottom: spacing['2xl'],
   },
   errorBox: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(244, 63, 94, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.5)',
+    borderColor: 'rgba(244, 63, 94, 0.3)',
     borderRadius: borderRadius.md,
     padding: spacing.md,
     marginBottom: spacing.lg,
   },
   errorText: {
+    flex: 1,
     fontSize: fontSize.sm,
     color: colors.status.critical,
   },
@@ -197,12 +212,12 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   submitButton: {
-    marginTop: spacing.sm,
+    marginTop: spacing.md,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: spacing['2xl'],
+    marginTop: spacing['3xl'],
   },
   footerText: {
     fontSize: fontSize.sm,
@@ -211,6 +226,6 @@ const styles = StyleSheet.create({
   footerLink: {
     fontSize: fontSize.sm,
     color: colors.brand.cyan,
-    fontWeight: fontWeight.medium,
+    fontWeight: fontWeight.bold,
   },
 });

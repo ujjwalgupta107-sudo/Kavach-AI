@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/Button';
 import { Send, Bot, User, Sparkles } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { apiClient } from '../../services/api/client';
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: string;
@@ -39,14 +40,14 @@ export function Assistant() {
 
     const userMsg = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { id: Date.now().toString(), role: 'user', content: userMsg }]);
+    setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'user', content: userMsg }]);
     setLoading(true);
 
     try {
       const data = await apiClient.post<any>('/api/v1/assistant/chat', { message: userMsg });
-      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: data.reply }]);
+      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'assistant', content: data.reply }]);
     } catch (error) {
-      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: 'Connection Error: Could not reach the assistant service.' }]);
+      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: 'assistant', content: 'Connection Error: Could not reach the assistant service.' }]);
     } finally {
       setLoading(false);
     }
@@ -75,8 +76,14 @@ export function Assistant() {
                 {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-5 h-5" />}
               </div>
               
-              <div className={`p-4 rounded-xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-brand-blue text-white rounded-tr-sm' : 'bg-surface-elevated border border-surface-raised rounded-tl-sm text-text-primary'}`}>
-                {msg.content}
+              <div className={`p-4 rounded-xl text-sm leading-relaxed overflow-hidden ${msg.role === 'user' ? 'bg-brand-blue text-white rounded-tr-sm' : 'bg-surface-elevated border border-surface-raised rounded-tl-sm text-text-primary'}`}>
+                {msg.role === 'user' ? (
+                  msg.content
+                ) : (
+                  <div className="space-y-4 [&>h1]:text-xl [&>h1]:font-bold [&>h2]:text-lg [&>h2]:font-bold [&>h3]:text-base [&>h3]:font-bold [&>ul]:list-disc [&>ul]:pl-5 [&>ul>li]:mb-1 [&>ol]:list-decimal [&>ol]:pl-5 [&>p]:mb-2 [&_strong]:text-brand-cyan">
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  </div>
+                )}
               </div>
             </div>
           ))}

@@ -3,17 +3,21 @@ import {
   View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity,
   KeyboardAvoidingView, Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { useAuthStore } from '../../stores/authStore';
 import { apiClient } from '../../services/api/client';
-import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
+import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { ChatMessage } from '../../types';
 
 export function AssistantScreen() {
   const { user } = useAuthStore();
   const isCitizen = user?.role === 'CITIZEN';
+  const insets = useSafeAreaInsets();
+  
+  const bottomPadding = Math.max(insets.bottom, 16) + 74;
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -39,16 +43,16 @@ export function AssistantScreen() {
 
     const userMsg = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { id: Date.now().toString(), role: 'user', content: userMsg }]);
+    setMessages(prev => [...prev, { id: Date.now().toString() + Math.random().toString(36), role: 'user', content: userMsg }]);
     setLoading(true);
 
     try {
       const data = await apiClient.post<any>('/api/v1/assistant/chat', { message: userMsg });
-      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: data.reply }]);
+      setMessages(prev => [...prev, { id: Date.now().toString() + Math.random().toString(36), role: 'assistant', content: data.reply }]);
     } catch (error) {
       setMessages(prev => [
         ...prev,
-        { id: (Date.now() + 1).toString(), role: 'assistant', content: 'Connection Error: Could not reach the assistant service.' },
+        { id: Date.now().toString() + Math.random().toString(36), role: 'assistant', content: 'Connection Error: Could not reach the assistant service.' },
       ]);
     } finally {
       setLoading(false);
@@ -62,11 +66,11 @@ export function AssistantScreen() {
         <View style={[styles.avatar, isUser ? styles.avatarUser : styles.avatarBot]}>
           <Ionicons
             name={isUser ? 'person' : 'hardware-chip'}
-            size={16}
+            size={18}
             color={isUser ? colors.white : colors.brand.cyan}
           />
         </View>
-        <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleBot]}>
+        <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleBot, !isUser && (shadows.glow('rgba(56, 189, 248, 0.05)') as any)]}>
           <Text style={[styles.msgText, isUser && styles.msgTextUser]}>{item.content}</Text>
         </View>
       </View>
@@ -82,9 +86,9 @@ export function AssistantScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerIcon}>
-          <Ionicons name="sparkles" size={22} color={colors.brand.cyan} />
+          <Ionicons name="sparkles" size={24} color={colors.brand.cyan} />
         </View>
-        <View>
+        <View style={{ flex: 1 }}>
           <Text style={styles.headerTitle}>KAVACH AI Assistant</Text>
           <Text style={styles.headerSubtitle}>
             {isCitizen ? 'Your safety companion.' : 'Your intelligent investigation partner.'}
@@ -104,7 +108,7 @@ export function AssistantScreen() {
           loading ? (
             <View style={[styles.msgRow]}>
               <View style={[styles.avatar, styles.avatarBot]}>
-                <Ionicons name="hardware-chip" size={16} color={colors.brand.cyan} />
+                <Ionicons name="hardware-chip" size={18} color={colors.brand.cyan} />
               </View>
               <View style={[styles.bubble, styles.bubbleBot, styles.typingBubble]}>
                 <View style={styles.typingDots}>
@@ -135,10 +139,10 @@ export function AssistantScreen() {
           onPress={handleSend}
           disabled={!input.trim() || loading}
         >
-          <Ionicons name="send" size={18} color={colors.white} />
+          <Ionicons name="send" size={20} color={colors.white} />
         </TouchableOpacity>
       </View>
-      <Text style={styles.disclaimer}>AI Assistant can make mistakes. Verify critical intelligence.</Text>
+      <Text style={[styles.disclaimer, { paddingBottom: bottomPadding }]}>AI Assistant can make mistakes. Verify critical intelligence.</Text>
     </KeyboardAvoidingView>
   );
 }
@@ -154,36 +158,39 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.surface.raised,
+    backgroundColor: 'rgba(9, 9, 11, 0.95)',
   },
   headerIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: borderRadius.lg,
-    backgroundColor: 'rgba(6, 182, 212, 0.2)',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(6, 182, 212, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, color: colors.text.primary },
-  headerSubtitle: { fontSize: fontSize.sm, color: colors.text.secondary },
-  messageList: { padding: spacing.lg, paddingBottom: spacing.xl },
-  msgRow: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm, marginBottom: spacing.lg, maxWidth: '85%' },
-  msgRowUser: { alignSelf: 'flex-end', flexDirection: 'row-reverse' },
-  avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarUser: { backgroundColor: colors.brand.blue },
-  avatarBot: {
-    backgroundColor: colors.surface.raised,
     borderWidth: 1,
     borderColor: 'rgba(6, 182, 212, 0.3)',
   },
+  headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, color: colors.text.primary, letterSpacing: 0.5 },
+  headerSubtitle: { fontSize: fontSize.sm, color: colors.text.secondary },
+  messageList: { padding: spacing.lg, paddingBottom: spacing.xl },
+  msgRow: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.md, marginBottom: spacing.lg, maxWidth: '85%' },
+  msgRowUser: { alignSelf: 'flex-end', flexDirection: 'row-reverse' },
+  avatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+  },
+  avatarUser: { backgroundColor: colors.brand.blue, borderColor: colors.brand.blue },
+  avatarBot: {
+    backgroundColor: 'rgba(6, 182, 212, 0.1)',
+    borderColor: 'rgba(6, 182, 212, 0.3)',
+  },
   bubble: {
-    maxWidth: '80%',
-    padding: spacing.md,
+    maxWidth: '85%',
+    padding: spacing.lg,
     borderRadius: borderRadius.xl,
   },
   bubbleUser: {
@@ -191,44 +198,45 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 4,
   },
   bubbleBot: {
-    backgroundColor: colors.surface.elevated,
+    backgroundColor: 'rgba(24, 24, 27, 0.8)',
     borderWidth: 1,
-    borderColor: colors.surface.raised,
+    borderColor: 'rgba(255,255,255,0.05)',
     borderBottomLeftRadius: 4,
   },
-  msgText: { fontSize: fontSize.base, color: colors.text.primary, lineHeight: 22 },
+  msgText: { fontSize: fontSize.base, color: colors.text.primary, lineHeight: 24 },
   msgTextUser: { color: colors.white },
-  typingBubble: { paddingVertical: spacing.md },
+  typingBubble: { paddingVertical: spacing.lg, paddingHorizontal: spacing.xl },
   typingDots: { flexDirection: 'row', gap: 6 },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.brand.cyan, opacity: 0.6 },
   inputBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
+    gap: spacing.md,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
-    backgroundColor: colors.surface.elevated,
+    backgroundColor: colors.surface.base,
     borderTopWidth: 1,
     borderTopColor: colors.surface.raised,
   },
   textInput: {
     flex: 1,
-    height: 44,
-    backgroundColor: colors.surface.base,
+    height: 48,
+    backgroundColor: 'rgba(24, 24, 27, 0.5)',
     borderWidth: 1,
-    borderColor: colors.surface.raised,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.md,
+    borderColor: 'rgba(255,255,255,0.1)',
+    borderRadius: borderRadius.full,
+    paddingHorizontal: spacing.lg,
     fontSize: fontSize.base,
     color: colors.text.primary,
   },
   sendBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: borderRadius.md,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: colors.brand.blue,
     justifyContent: 'center',
     alignItems: 'center',
+    ...(shadows.glow('rgba(59, 130, 246, 0.4)') as any),
   },
   sendBtnDisabled: { opacity: 0.5 },
   disclaimer: {
@@ -237,6 +245,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingBottom: Platform.OS === 'ios' ? 24 : 8,
     paddingTop: 4,
-    backgroundColor: colors.surface.elevated,
+    backgroundColor: colors.surface.base,
   },
 });

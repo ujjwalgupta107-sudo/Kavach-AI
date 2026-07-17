@@ -24,7 +24,7 @@ export function DemoWorkflow() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
 
-  const demoSteps = isAuthenticated && user?.role === 'INVESTIGATOR' ? investigatorSteps : citizenSteps;
+  const demoSteps = isAuthenticated && (user?.role === 'INVESTIGATOR' || user?.role === 'ADMIN') ? investigatorSteps : citizenSteps;
 
   useEffect(() => {
     if (currentStepIndex >= 0) {

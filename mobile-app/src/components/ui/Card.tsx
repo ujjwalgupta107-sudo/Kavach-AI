@@ -1,14 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewProps, TextProps } from 'react-native';
-import { colors, borderRadius, spacing, fontSize, fontWeight } from '../../constants/theme';
+import { colors, borderRadius, spacing, fontSize, fontWeight, shadows } from '../../constants/theme';
 
 interface CardProps extends ViewProps {
   children: React.ReactNode;
+  variant?: 'default' | 'glow';
 }
 
-export function Card({ children, style, ...props }: CardProps) {
+export function Card({ children, style, variant = 'default', ...props }: CardProps) {
   return (
-    <View style={[styles.card, style]} {...props}>
+    <View style={[styles.card, variant === 'glow' && styles.cardGlow, style]} {...props}>
       {children}
     </View>
   );
@@ -43,8 +44,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface.elevated,
     borderRadius: borderRadius.xl,
     borderWidth: 1,
-    borderColor: colors.surface.raised,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    ...shadows.lg,
     overflow: 'hidden',
+  },
+  cardGlow: {
+    borderColor: 'rgba(56, 189, 248, 0.3)',
+    ...shadows.glow(colors.brand.glow),
   },
   header: {
     padding: spacing.lg,
@@ -52,7 +58,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: fontSize.lg,
-    fontWeight: fontWeight.semibold,
+    fontWeight: fontWeight.bold,
     color: colors.text.primary,
   },
   content: {

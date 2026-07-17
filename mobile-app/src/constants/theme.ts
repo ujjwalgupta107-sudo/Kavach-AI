@@ -1,28 +1,30 @@
 /**
  * KAVACH Mobile App — Design System Tokens
- * Mirrors the web app's dark-mode Tailwind theme exactly.
+ * Upgraded to a sleek, modern, cyber/fintech aesthetic.
  */
 
 export const colors = {
   brand: {
-    blue: '#1E3A8A',
-    cyan: '#06B6D4',
+    blue: '#4F46E5', // Indigo-600
+    cyan: '#38BDF8', // Sky-400
+    glow: 'rgba(79, 70, 229, 0.5)',
   },
   surface: {
-    base: '#0F172A',
-    elevated: '#1E293B',
-    raised: '#334155',
+    base: '#09090B',      // Zinc-950 (Main background)
+    elevated: '#18181B',  // Zinc-900 (Cards, Modals)
+    raised: '#27272A',    // Zinc-800 (Borders, Dividers, Input bgs)
+    overlay: 'rgba(24, 24, 27, 0.8)', // For glassmorphism
   },
   status: {
-    critical: '#EF4444',
-    warning: '#F59E0B',
-    safe: '#10B981',
-    info: '#3B82F6',
+    critical: '#F43F5E', // Rose-500
+    warning: '#F59E0B',  // Amber-500
+    safe: '#10B981',     // Emerald-500
+    info: '#3B82F6',     // Blue-500
   },
   text: {
-    primary: '#F8FAFC',
-    secondary: '#94A3B8',
-    muted: '#64748B',
+    primary: '#F8FAFC',  // Slate-50
+    secondary: '#A1A1AA',// Zinc-400
+    muted: '#71717A',    // Zinc-500
   },
   white: '#FFFFFF',
   black: '#000000',
@@ -42,23 +44,23 @@ export const spacing = {
 } as const;
 
 export const borderRadius = {
-  sm: 6,
-  md: 8,
-  lg: 12,
-  xl: 16,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
   full: 9999,
 } as const;
 
 export const fontSize = {
-  xs: 10,
-  sm: 12,
-  base: 14,
-  md: 16,
-  lg: 18,
-  xl: 20,
-  '2xl': 24,
-  '3xl': 30,
-  '4xl': 36,
+  xs: 11,
+  sm: 13,
+  base: 15,
+  md: 17,
+  lg: 19,
+  xl: 22,
+  '2xl': 26,
+  '3xl': 32,
+  '4xl': 40,
 } as const;
 
 export const fontWeight = {
@@ -71,30 +73,35 @@ export const fontWeight = {
 export const shadows = {
   sm: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   md: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
   },
   lg: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.5,
+    shadowRadius: 16,
+    elevation: 10,
   },
   glow: (color: string) => ({
     shadowColor: color,
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.6,
     shadowRadius: 12,
-    elevation: 6,
+    elevation: 8,
+  }),
+  textGlow: (color: string) => ({
+    textShadowColor: color,
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 12,
   }),
 } as const;

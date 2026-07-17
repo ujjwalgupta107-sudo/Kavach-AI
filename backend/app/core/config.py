@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     # External Services
     REDIS_URL: Optional[str] = None
     AI_PROVIDER: str = "mock"
-    AI_MODEL: str = "gemini-2.5-flash"
+    AI_MODEL: str = "gemini-3.5-flash"
     LLM_API_KEY: Optional[str] = None
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "llama3"

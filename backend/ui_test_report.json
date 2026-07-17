@@ -1,14 +1,11 @@
 {
-  "ConsoleErrors": [
-    "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
-  ],
-  "LoginFlow": "PENDING",
-  "Dashboard": "PENDING",
-  "CaseList": "PENDING",
-  "CaseDetail": "PENDING",
-  "AlertCenter": "PENDING",
-  "FraudGraph": "PENDING",
-  "GeoMap": "PENDING",
-  "CitizenFlow": "PENDING",
-  "Error": "Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"**/intelligence\" until 'load'\n============================================================"
+  "ConsoleErrors": [],
+  "LoginFlow": "PASS",
+  "Dashboard": "PASS",
+  "CaseList": "PASS",
+  "CaseDetail": "PASS",
+  "AlertCenter": "PASS",
+  "FraudGraph": "PASS",
+  "GeoMap": "PASS",
+  "CitizenFlow": "PASS"
 }

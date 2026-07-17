@@ -13,7 +13,7 @@ TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
 engine = create_async_engine(TEST_DATABASE_URL, echo=False)
 TestingSessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=engine, class_=AsyncSession
+    autocommit=False, autoflush=False, bind=engine, class_=AsyncSession, expire_on_commit=False
 )
 
 async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
@@ -21,6 +21,11 @@ async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 app.dependency_overrides[get_db] = override_get_db
+
+@pytest.fixture
+async def db_session() -> AsyncGenerator[AsyncSession, None]:
+    async with TestingSessionLocal() as session:
+        yield session
 
 @pytest.fixture(autouse=True)
 async def prepare_database():

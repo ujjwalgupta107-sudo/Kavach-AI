@@ -1,12 +1,12 @@
 import httpx
 import asyncio
 
-async def test_api():
+async def run_api_tests():
     base_url = "http://localhost:8000/api/v1"
     
     async with httpx.AsyncClient() as client:
         print("\n--- AUTHENTICATION ---")
-        login_res = await client.post(f"{base_url}/auth/login", data={"username": "investigator@kavach.ai", "password": "test1234"})
+        login_res = await client.post(f"{base_url}/auth/login", data={"username": "investigator@kavach.ai", "password": "admin123"})
         if login_res.status_code != 200:
             print("Failed to login as investigator. Output:", login_res.text)
             return
@@ -85,4 +85,4 @@ async def test_api():
             print(f"Number of clusters: {len(clusters)}")
 
 if __name__ == "__main__":
-    asyncio.run(test_api())
+    asyncio.run(run_api_tests())

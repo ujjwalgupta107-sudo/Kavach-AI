@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity,
-  ActivityIndicator, Alert, Platform,
+  ActivityIndicator, Alert, Platform, KeyboardAvoidingView
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -10,7 +10,7 @@ import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { useAuthStore } from '../../stores/authStore';
 import { apiClient, API_BASE_URL } from '../../services/api/client';
-import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
+import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { ShieldStackParamList } from '../../navigation/CitizenTabs';
 
@@ -159,14 +159,20 @@ export function ShieldHomeScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView 
+      style={styles.container} 
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>🛡️ KAVACH Shield</Text>
+        <View style={styles.headerBrand}>
+          <Ionicons name="shield-checkmark" size={28} color={colors.brand.cyan} />
+          <Text style={styles.headerTitle}>KAVACH</Text>
+        </View>
         <Text style={styles.headerSubtitle}>Citizen Interface</Text>
       </View>
 
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <Text style={styles.title}>What would you like KAVACH to check?</Text>
         <Text style={styles.subtitle}>Analyze suspicious content to get an immediate risk assessment.</Text>
 
@@ -182,8 +188,9 @@ export function ShieldHomeScreen() {
               >
                 <Ionicons
                   name={item.icon as any}
-                  size={24}
+                  size={28}
                   color={active ? colors.brand.cyan : colors.text.muted}
+                  style={active && shadows.textGlow(colors.brand.cyan) as any}
                 />
                 <Text style={[styles.tabLabel, active && styles.tabLabelActive]}>{item.label}</Text>
               </TouchableOpacity>
@@ -192,7 +199,7 @@ export function ShieldHomeScreen() {
         </ScrollView>
 
         {/* Analysis input */}
-        <Card style={styles.inputCard}>
+        <Card style={styles.inputCard} variant="glow">
           <CardContent>
             <View style={styles.inputHeader}>
               <Text style={styles.inputTitle}>{tabs[activeTab].label} Analysis</Text>
@@ -219,7 +226,9 @@ export function ShieldHomeScreen() {
                   </>
                 ) : (
                   <>
-                    <Ionicons name="cloud-upload-outline" size={32} color={colors.text.muted} />
+                    <View style={styles.uploadIconWrapper}>
+                      <Ionicons name="cloud-upload-outline" size={32} color={colors.brand.cyan} />
+                    </View>
                     <Text style={styles.uploadText}>Tap to upload Screenshot</Text>
                     <Text style={styles.uploadHint}>(Real OCR Extraction)</Text>
                   </>
@@ -245,6 +254,7 @@ export function ShieldHomeScreen() {
 
             {error && (
               <View style={styles.errorBox}>
+                <Ionicons name="warning" size={16} color={colors.status.critical} style={{ marginRight: 8 }} />
                 <Text style={styles.errorText}>{error}</Text>
               </View>
             )}
@@ -253,10 +263,11 @@ export function ShieldHomeScreen() {
               <Text style={styles.charCount}>{text.length} characters</Text>
               <View style={styles.btnRow}>
                 <Button
-                  variant="ghost"
+                  variant="glass"
                   size="sm"
                   onPress={() => { setText(''); setError(null); setFileName(null); }}
                   disabled={isAnalyzing || !text}
+                  style={{ marginRight: spacing.sm }}
                 >
                   Clear
                 </Button>
@@ -281,12 +292,15 @@ export function ShieldHomeScreen() {
         </Card>
 
         {!isAuthenticated && (
-          <Text style={styles.signInHint}>
-            Analysis results are not saved. Sign in to keep a personal history.
-          </Text>
+          <View style={styles.signInHintBox}>
+            <Ionicons name="information-circle-outline" size={20} color={colors.text.muted} />
+            <Text style={styles.signInHint}>
+              Analysis results are not saved. Sign in to keep a personal history.
+            </Text>
+          </View>
         )}
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -301,20 +315,22 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.surface.raised,
+    backgroundColor: 'rgba(9, 9, 11, 0.95)',
   },
-  headerTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, color: colors.brand.cyan },
-  headerSubtitle: { fontSize: fontSize.sm, color: colors.text.muted },
+  headerBrand: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  headerTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text.primary, letterSpacing: 1 },
+  headerSubtitle: { fontSize: fontSize.sm, color: colors.brand.cyan, fontWeight: '500' },
   scroll: { flex: 1 },
   scrollContent: { padding: spacing.lg, paddingBottom: 100 },
-  title: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text.primary, marginBottom: spacing.xs },
-  subtitle: { fontSize: fontSize.base, color: colors.text.secondary, marginBottom: spacing.xl },
+  title: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold, color: colors.text.primary, marginBottom: spacing.xs },
+  subtitle: { fontSize: fontSize.base, color: colors.text.secondary, marginBottom: spacing.xl, lineHeight: 22 },
   tabRow: { marginBottom: spacing.xl, flexGrow: 0 },
   tabCard: {
-    width: 110,
-    height: 90,
-    backgroundColor: colors.surface.elevated,
+    width: 120,
+    height: 100,
+    backgroundColor: 'rgba(24, 24, 27, 0.5)',
     borderWidth: 1,
-    borderColor: colors.surface.raised,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: borderRadius.lg,
     justifyContent: 'center',
     alignItems: 'center',
@@ -323,17 +339,17 @@ const styles = StyleSheet.create({
   },
   tabCardActive: {
     borderColor: colors.brand.cyan,
-    backgroundColor: 'rgba(6, 182, 212, 0.05)',
+    backgroundColor: 'rgba(56, 189, 248, 0.08)',
   },
-  tabLabel: { fontSize: fontSize.xs, color: colors.text.secondary, marginTop: spacing.xs, textAlign: 'center' },
-  tabLabelActive: { color: colors.brand.cyan },
+  tabLabel: { fontSize: fontSize.sm, color: colors.text.secondary, marginTop: spacing.md, textAlign: 'center', fontWeight: '500' },
+  tabLabelActive: { color: colors.brand.cyan, fontWeight: 'bold' },
   inputCard: { marginBottom: spacing.lg },
   inputHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
-  inputTitle: { fontSize: fontSize.md, fontWeight: fontWeight.semibold, color: colors.text.primary },
-  sampleBtn: { fontSize: fontSize.xs, color: colors.brand.cyan },
+  inputTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, color: colors.text.primary },
+  sampleBtn: { fontSize: fontSize.sm, color: colors.brand.cyan, fontWeight: '500' },
   textArea: {
-    height: 140,
-    backgroundColor: colors.surface.base,
+    height: 150,
+    backgroundColor: 'rgba(24, 24, 27, 0.5)',
     borderWidth: 1,
     borderColor: colors.surface.raised,
     borderRadius: borderRadius.md,
@@ -343,8 +359,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   uploadBox: {
-    height: 140,
-    backgroundColor: colors.surface.base,
+    height: 150,
+    backgroundColor: 'rgba(24, 24, 27, 0.5)',
     borderWidth: 1,
     borderStyle: 'dashed',
     borderColor: colors.surface.raised,
@@ -353,11 +369,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.md,
   },
-  uploadText: { fontSize: fontSize.sm, color: colors.text.secondary, marginTop: spacing.sm },
+  uploadIconWrapper: {
+    width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(56, 189, 248, 0.1)', justifyContent: 'center', alignItems: 'center', marginBottom: spacing.sm,
+  },
+  uploadText: { fontSize: fontSize.base, color: colors.text.primary, fontWeight: '500' },
   uploadHint: { fontSize: fontSize.xs, color: colors.text.muted, marginTop: spacing.xs },
   disabledBox: {
-    height: 140,
-    backgroundColor: colors.surface.base,
+    height: 150,
+    backgroundColor: 'rgba(24, 24, 27, 0.5)',
     borderWidth: 1,
     borderColor: colors.surface.raised,
     borderRadius: borderRadius.md,
@@ -368,28 +387,33 @@ const styles = StyleSheet.create({
   },
   disabledText: { fontSize: fontSize.sm, color: colors.text.secondary, textAlign: 'center', marginTop: spacing.sm },
   errorBox: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(244, 63, 94, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.5)',
+    borderColor: 'rgba(244, 63, 94, 0.3)',
     borderRadius: borderRadius.md,
     padding: spacing.md,
     marginBottom: spacing.md,
   },
-  errorText: { fontSize: fontSize.sm, color: colors.status.critical },
-  actionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  errorText: { flex: 1, fontSize: fontSize.sm, color: colors.status.critical },
+  actionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.sm },
   charCount: { fontSize: fontSize.xs, color: colors.text.muted },
-  btnRow: { flexDirection: 'row', gap: spacing.sm },
+  btnRow: { flexDirection: 'row' },
   stageBar: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
     marginTop: spacing.md,
     padding: spacing.md,
-    backgroundColor: 'rgba(6, 182, 212, 0.1)',
+    backgroundColor: 'rgba(56, 189, 248, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(6, 182, 212, 0.2)',
+    borderColor: 'rgba(56, 189, 248, 0.2)',
     borderRadius: borderRadius.md,
   },
-  stageText: { fontSize: fontSize.sm, color: colors.brand.cyan },
-  signInHint: { fontSize: fontSize.xs, color: colors.text.muted, textAlign: 'center', marginTop: spacing.lg },
+  stageText: { fontSize: fontSize.sm, color: colors.brand.cyan, fontWeight: '500' },
+  signInHintBox: {
+    flexDirection: 'row', alignItems: 'center', gap: 8, justifyContent: 'center', marginTop: spacing.lg, paddingHorizontal: spacing.xl,
+  },
+  signInHint: { fontSize: fontSize.sm, color: colors.text.muted, textAlign: 'center', flex: 1 },
 });

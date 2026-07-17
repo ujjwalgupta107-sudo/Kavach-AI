@@ -9,7 +9,7 @@ This file documents local accounts that are automatically seeded into the databa
 Use this account to log in to the investigator Command Centre (`/login`).
 
 - **Email:** `investigator@kavach.ai`
-- **Password:** `test1234`
+- **Password:** `admin123`
 - **Role:** INVESTIGATOR
 
 ## Citizen Accounts

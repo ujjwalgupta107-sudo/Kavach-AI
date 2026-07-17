@@ -4,7 +4,7 @@ import { Card, CardContent } from '../../components/ui/Card';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { ErrorCard } from '../../components/ui/ErrorCard';
 import { clusterService } from '../../services/api/clusterService';
-import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
+import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 
 export function ClusterListScreen() {
@@ -32,16 +32,31 @@ export function ClusterListScreen() {
           contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}
           ListEmptyComponent={<Text style={styles.empty}>No clusters detected.</Text>}
           renderItem={({ item }) => (
-            <Card style={styles.card}><CardContent style={styles.content}>
-              <View style={styles.row}>
-                <View style={styles.icon}><Ionicons name="git-branch" size={20} color={colors.brand.cyan} /></View>
-                <View style={styles.info}>
-                  <Text style={styles.clusterId}>{item.id}</Text>
-                  <Text style={styles.meta}>{item.case_count || 0} cases • {item.entity_count || 0} entities</Text>
+            <Card style={styles.card} variant="glow">
+              <CardContent style={styles.content}>
+                <View style={styles.row}>
+                  <View style={styles.icon}><Ionicons name="git-branch" size={24} color={colors.brand.cyan} /></View>
+                  <View style={styles.info}>
+                    <Text style={styles.clusterId}>{item.id}</Text>
+                    <View style={styles.metaRow}>
+                      <View style={styles.metaBadge}>
+                        <Ionicons name="document-text-outline" size={12} color={colors.text.secondary} />
+                        <Text style={styles.meta}>{item.case_count || 0} Cases</Text>
+                      </View>
+                      <View style={styles.metaBadge}>
+                        <Ionicons name="people-outline" size={12} color={colors.text.secondary} />
+                        <Text style={styles.meta}>{item.entity_count || 0} Entities</Text>
+                      </View>
+                    </View>
+                  </View>
                 </View>
-              </View>
-              {item.label && <Text style={styles.label}>{item.label}</Text>}
-            </CardContent></Card>
+                {item.label && (
+                  <View style={styles.labelBox}>
+                    <Text style={styles.label}>{item.label}</Text>
+                  </View>
+                )}
+              </CardContent>
+            </Card>
           )}
         />
       )}
@@ -50,19 +65,22 @@ export function ClusterListScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0b1120' },
-  header: { paddingHorizontal: spacing.lg, paddingTop: Platform.OS === 'ios' ? 56 : 40, paddingBottom: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.surface.raised, backgroundColor: colors.surface.base },
-  title: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text.primary },
+  container: { flex: 1, backgroundColor: colors.surface.base },
+  header: { paddingHorizontal: spacing.lg, paddingTop: Platform.OS === 'ios' ? 56 : 40, paddingBottom: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.surface.raised, backgroundColor: 'rgba(9, 9, 11, 0.95)' },
+  title: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text.primary, letterSpacing: 0.5 },
   subtitle: { fontSize: fontSize.sm, color: colors.text.secondary, marginTop: 4 },
   list: { padding: spacing.lg, paddingBottom: 100 },
-  card: { marginBottom: spacing.md },
+  card: { marginBottom: spacing.md, backgroundColor: 'rgba(24, 24, 27, 0.7)' },
   content: { paddingVertical: spacing.md },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  icon: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(6,182,212,0.1)', justifyContent: 'center', alignItems: 'center' },
+  icon: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(6,182,212,0.1)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(6,182,212,0.3)' },
   info: { flex: 1 },
-  clusterId: { fontSize: fontSize.base, fontWeight: fontWeight.semibold, color: colors.brand.cyan, fontFamily: 'monospace' },
-  meta: { fontSize: fontSize.xs, color: colors.text.muted, marginTop: 4 },
-  label: { fontSize: fontSize.sm, color: colors.text.secondary, marginTop: spacing.sm },
+  clusterId: { fontSize: fontSize.base, fontWeight: 'bold', color: colors.brand.cyan, fontFamily: 'monospace', letterSpacing: 0.5 },
+  metaRow: { flexDirection: 'row', gap: spacing.sm, marginTop: 8 },
+  metaBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(255,255,255,0.05)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  meta: { fontSize: 10, color: colors.text.secondary, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 0.5 },
+  labelBox: { marginTop: spacing.md, backgroundColor: 'rgba(255,255,255,0.02)', padding: spacing.sm, borderRadius: borderRadius.sm, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+  label: { fontSize: fontSize.sm, color: colors.text.primary, fontStyle: 'italic' },
   p: { padding: spacing.lg },
   empty: { fontSize: fontSize.base, color: colors.text.muted, textAlign: 'center', paddingVertical: spacing['3xl'] },
 });

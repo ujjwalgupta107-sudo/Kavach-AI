@@ -32,14 +32,14 @@ async def run():
             report["LoginFlow"] = "PASS"
 
             # 2. Dashboard
-            await page.wait_for_selector("text=Total Active Cases")
-            await page.wait_for_selector("text=Total System Alerts")
+            await page.wait_for_selector("text=Active High-Risk Cases")
+            await page.wait_for_selector("text=New Reports Today")
             report["Dashboard"] = "PASS"
 
             # 3. Case List & Case Detail
             await page.goto("http://localhost:5173/intelligence/cases")
-            await page.wait_for_selector("tr.border-b") # Wait for rows
-            await page.click("tr.border-b:first-child") # Click first row
+            await page.wait_for_selector("tbody tr") # Wait for rows
+            await page.click("tbody tr:first-child") # Click first row
             await page.wait_for_selector("text=RISK", timeout=5000)
             report["CaseList"] = "PASS"
             report["CaseDetail"] = "PASS"
@@ -62,7 +62,7 @@ async def run():
             # 7. Citizen Flow
             await page.goto("http://localhost:5173/shield")
             await page.fill("textarea", "This is CBI. Your Aadhaar is linked to an illegal parcel. Do not tell anyone. Transfer Rs 50000 to verify.case@upi or you will be arrested.")
-            await page.click("button:has-text('Analyze Now')")
+            await page.click("button:has-text('Analyze')")
             await page.wait_for_selector("text=RISK", timeout=15000)
             report["CitizenFlow"] = "PASS"
 

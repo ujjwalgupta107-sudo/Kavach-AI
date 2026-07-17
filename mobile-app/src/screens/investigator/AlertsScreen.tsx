@@ -5,7 +5,7 @@ import { Card, CardContent } from '../../components/ui/Card';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { ErrorCard } from '../../components/ui/ErrorCard';
 import { alertService } from '../../services/api/alertService';
-import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
+import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 
 export function AlertsScreen() {
@@ -40,15 +40,21 @@ export function AlertsScreen() {
   const renderAlert = ({ item }: { item: any }) => {
     const sevColor = getSeverityColor(item.severity);
     return (
-      <Card style={[styles.alertCard, item.status !== 'READ' && { borderLeftWidth: 4, borderLeftColor: colors.status.critical }]}>
+      <Card
+        style={[
+          styles.alertCard,
+          item.status !== 'READ' && { borderLeftWidth: 4, borderLeftColor: sevColor }
+        ]}
+        variant="glow"
+      >
         <CardContent style={styles.alertContent}>
           <View style={styles.alertRow}>
-            <View style={[styles.iconCircle, { backgroundColor: `${sevColor}15` }]}>
-              <Ionicons name="alert-circle" size={20} color={sevColor} />
+            <View style={[styles.iconCircle, { backgroundColor: `${sevColor}15`, borderColor: `${sevColor}30` }]}>
+              <Ionicons name="alert-circle" size={24} color={sevColor} />
             </View>
             <View style={styles.alertInfo}>
               <View style={styles.alertMeta}>
-                <View style={[styles.sevBadge, { backgroundColor: `${sevColor}20` }]}>
+                <View style={[styles.sevBadge, { backgroundColor: `${sevColor}20`, borderColor: `${sevColor}40` }]}>
                   <Text style={[styles.sevText, { color: sevColor }]}>{item.severity}</Text>
                 </View>
                 <Text style={styles.alertTime}>{new Date(item.created_at || Date.now()).toLocaleString()}</Text>
@@ -64,6 +70,7 @@ export function AlertsScreen() {
               style={styles.investigateBtn}
               onPress={() => navigation.navigate('Cases', { screen: 'CaseDetail', params: { caseId: item.case_id } })}
             >
+              <Ionicons name="search" size={14} color={colors.brand.cyan} style={{ marginRight: 6 }}/>
               <Text style={styles.investigateBtnText}>Investigate</Text>
             </TouchableOpacity>
           )}
@@ -92,7 +99,7 @@ export function AlertsScreen() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Ionicons name="checkmark-circle-outline" size={48} color={colors.text.muted} />
+              <Ionicons name="checkmark-circle-outline" size={64} color={'rgba(255,255,255,0.1)'} />
               <Text style={styles.emptyText}>No active alerts.</Text>
             </View>
           }
@@ -103,40 +110,43 @@ export function AlertsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0b1120' },
+  container: { flex: 1, backgroundColor: colors.surface.base },
   header: {
     paddingHorizontal: spacing.lg,
     paddingTop: Platform.OS === 'ios' ? 56 : 40,
     paddingBottom: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.surface.raised,
-    backgroundColor: colors.surface.base,
+    backgroundColor: 'rgba(9, 9, 11, 0.95)',
   },
-  title: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text.primary },
+  title: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text.primary, letterSpacing: 0.5 },
   subtitle: { fontSize: fontSize.sm, color: colors.text.secondary, marginTop: 4 },
   list: { padding: spacing.lg, paddingBottom: 100 },
-  alertCard: { marginBottom: spacing.md },
+  alertCard: { marginBottom: spacing.md, backgroundColor: 'rgba(24, 24, 27, 0.7)' },
   alertContent: { paddingVertical: spacing.md },
   alertRow: { flexDirection: 'row', gap: spacing.md },
-  iconCircle: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
+  iconCircle: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
   alertInfo: { flex: 1 },
-  alertMeta: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: 4 },
-  sevBadge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 3 },
-  sevText: { fontSize: 9, fontWeight: fontWeight.bold, textTransform: 'uppercase' },
+  alertMeta: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: 8 },
+  sevBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, borderWidth: 1 },
+  sevText: { fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 0.5 },
   alertTime: { fontSize: fontSize.xs, color: colors.text.muted },
-  alertTitle: { fontSize: fontSize.base, fontWeight: fontWeight.semibold, color: colors.text.primary, lineHeight: 22 },
-  alertCase: { fontSize: fontSize.sm, color: colors.text.muted, marginTop: 4 },
-  alertCaseId: { color: colors.brand.cyan },
+  alertTitle: { fontSize: fontSize.base, fontWeight: 'bold', color: colors.text.primary, lineHeight: 22 },
+  alertCase: { fontSize: fontSize.sm, color: colors.text.muted, marginTop: 6 },
+  alertCaseId: { color: colors.brand.cyan, fontFamily: 'monospace', fontWeight: 'bold' },
   investigateBtn: {
+    flexDirection: 'row',
     alignSelf: 'flex-end',
-    marginTop: spacing.sm,
+    alignItems: 'center',
+    marginTop: spacing.md,
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingVertical: spacing.sm,
+    backgroundColor: 'rgba(56, 189, 248, 0.05)',
     borderWidth: 1,
-    borderColor: colors.surface.raised,
+    borderColor: 'rgba(56, 189, 248, 0.2)',
     borderRadius: borderRadius.md,
   },
-  investigateBtnText: { fontSize: fontSize.sm, color: colors.text.primary },
+  investigateBtnText: { fontSize: fontSize.sm, color: colors.brand.cyan, fontWeight: 'bold' },
   errorWrapper: { padding: spacing.lg },
   emptyState: { alignItems: 'center', paddingVertical: spacing['5xl'] },
   emptyText: { fontSize: fontSize.base, color: colors.text.muted, marginTop: spacing.md },

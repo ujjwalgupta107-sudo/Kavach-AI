@@ -10,13 +10,13 @@ interface RiskBadgeProps {
 const getRiskStyle = (level: string) => {
   switch (level) {
     case 'CRITICAL':
-      return { bg: 'rgba(239, 68, 68, 0.1)', text: colors.status.critical, border: 'rgba(239, 68, 68, 0.5)' };
+      return { bg: 'rgba(244, 63, 94, 0.15)', text: colors.status.critical, border: 'rgba(244, 63, 94, 0.4)' };
     case 'HIGH':
-      return { bg: 'rgba(245, 158, 11, 0.1)', text: colors.status.warning, border: 'rgba(245, 158, 11, 0.5)' };
+      return { bg: 'rgba(245, 158, 11, 0.15)', text: colors.status.warning, border: 'rgba(245, 158, 11, 0.4)' };
     case 'MEDIUM':
-      return { bg: 'rgba(59, 130, 246, 0.1)', text: colors.status.info, border: 'rgba(59, 130, 246, 0.5)' };
+      return { bg: 'rgba(56, 189, 248, 0.15)', text: colors.brand.cyan, border: 'rgba(56, 189, 248, 0.4)' };
     default:
-      return { bg: 'rgba(16, 185, 129, 0.1)', text: colors.status.safe, border: 'rgba(16, 185, 129, 0.5)' };
+      return { bg: 'rgba(16, 185, 129, 0.15)', text: colors.status.safe, border: 'rgba(16, 185, 129, 0.4)' };
   }
 };
 
@@ -34,18 +34,20 @@ export function RiskBadge({ level, compact = false }: RiskBadgeProps) {
 
 const styles = StyleSheet.create({
   badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: borderRadius.sm,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: borderRadius.full,
     borderWidth: 1,
     alignSelf: 'flex-start',
   },
   text: {
     fontSize: fontSize.xs,
     fontWeight: fontWeight.bold,
-    fontFamily: 'monospace',
+    letterSpacing: 0.5,
   },
   compactText: {
     fontSize: 9,
+    paddingHorizontal: 2,
+    paddingVertical: 1,
   },
 });

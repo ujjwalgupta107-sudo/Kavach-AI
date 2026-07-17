@@ -73,7 +73,7 @@ class OllamaProvider(BaseLLMProvider):
 
 class MockProvider(BaseLLMProvider):
     async def generate(self, system_prompt: str, user_prompt: str, max_tokens: int = 1024, temperature: float = 0.2) -> str:
-        return "{\n  \"status\": \"success\",\n  \"mock_response\": \"This is a mock provider output based on the provided context.\"\n}"
+        return "This is a mock provider output based on the provided context."
 
 def get_llm_provider(allow_mock: bool = False) -> BaseLLMProvider:
     provider_name = settings.AI_PROVIDER.lower()

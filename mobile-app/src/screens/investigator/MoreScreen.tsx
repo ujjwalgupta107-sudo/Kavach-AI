@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Card } from '../../components/ui/Card';
-import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
+import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { MoreStackParamList } from '../../navigation/InvestigatorTabs';
 
@@ -25,49 +25,57 @@ export function MoreScreen() {
         <Text style={styles.title}>More Tools</Text>
         <Text style={styles.subtitle}>Additional intelligence and settings.</Text>
       </View>
-      <View style={styles.content}>
-        {menuItems.map((item) => (
-          <TouchableOpacity key={item.screen} onPress={() => navigation.navigate(item.screen)}>
-            <Card style={styles.card}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {menuItems.map((item, index) => (
+          <TouchableOpacity key={item.screen} onPress={() => navigation.navigate(item.screen)} activeOpacity={0.7}>
+            <Card style={styles.card} variant="glow">
               <View style={styles.row}>
-                <View style={styles.iconBox}>
+                <View style={[styles.iconBox, shadows.glow('rgba(6, 182, 212, 0.15)') as any]}>
                   <Ionicons name={item.icon} size={24} color={colors.brand.cyan} />
                 </View>
                 <View style={styles.info}>
                   <Text style={styles.label}>{item.label}</Text>
                   <Text style={styles.desc}>{item.desc}</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={18} color={colors.text.muted} />
+                <View style={styles.chevronBox}>
+                  <Ionicons name="chevron-forward" size={18} color={colors.brand.cyan} />
+                </View>
               </View>
             </Card>
           </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0b1120' },
+  container: { flex: 1, backgroundColor: colors.surface.base },
   header: {
     paddingHorizontal: spacing.lg,
     paddingTop: Platform.OS === 'ios' ? 56 : 40,
     paddingBottom: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.surface.raised,
-    backgroundColor: colors.surface.base,
+    backgroundColor: 'rgba(9, 9, 11, 0.95)',
   },
-  title: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text.primary },
+  title: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text.primary, letterSpacing: 0.5 },
   subtitle: { fontSize: fontSize.sm, color: colors.text.secondary, marginTop: 4 },
-  content: { padding: spacing.lg, gap: spacing.md },
-  card: { padding: 0 },
+  content: { padding: spacing.lg, gap: spacing.md, paddingBottom: 100 },
+  card: { padding: 0, backgroundColor: 'rgba(24, 24, 27, 0.7)', overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', padding: spacing.lg, gap: spacing.md },
   iconBox: {
-    width: 48, height: 48, borderRadius: borderRadius.lg,
+    width: 48, height: 48, borderRadius: 24,
     backgroundColor: 'rgba(6, 182, 212, 0.1)',
     justifyContent: 'center', alignItems: 'center',
+    borderWidth: 1, borderColor: 'rgba(6, 182, 212, 0.3)',
   },
   info: { flex: 1 },
-  label: { fontSize: fontSize.md, fontWeight: fontWeight.semibold, color: colors.text.primary },
-  desc: { fontSize: fontSize.sm, color: colors.text.muted, marginTop: 2 },
+  label: { fontSize: fontSize.base, fontWeight: 'bold', color: colors.text.primary, letterSpacing: 0.5 },
+  desc: { fontSize: fontSize.sm, color: colors.text.secondary, marginTop: 4 },
+  chevronBox: {
+    width: 32, height: 32, borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    justifyContent: 'center', alignItems: 'center',
+  },
 });

@@ -2,7 +2,9 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../constants/theme';
+import { colors, shadows, borderRadius } from '../constants/theme';
+import { View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DashboardScreen } from '../screens/investigator/DashboardScreen';
 import { CaseListScreen } from '../screens/investigator/CaseListScreen';
@@ -76,24 +78,38 @@ export type InvestigatorTabParamList = {
 const Tab = createBottomTabNavigator<InvestigatorTabParamList>();
 
 export function InvestigatorTabs() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: colors.surface.elevated,
-          borderTopColor: colors.surface.raised,
-          borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
+          position: 'absolute',
+          bottom: Math.max(insets.bottom, 16),
+          left: 20,
+          right: 20,
+          backgroundColor: colors.surface.overlay,
+          borderRadius: borderRadius.full,
+          height: 64,
+          paddingBottom: 0,
+          borderWidth: 1,
+          borderColor: 'rgba(255, 255, 255, 0.1)',
+          ...shadows.lg,
         },
         tabBarActiveTintColor: colors.brand.cyan,
         tabBarInactiveTintColor: colors.text.muted,
         tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '600' as const,
+          fontSize: 10,
+          fontWeight: '700' as const,
+          marginBottom: 8,
         },
+        tabBarItemStyle: {
+          paddingTop: 10,
+        },
+        tabBarBackground: () => (
+          <View style={{ flex: 1, borderRadius: borderRadius.full, overflow: 'hidden' }} />
+        ),
         tabBarIcon: ({ focused, color, size }) => {
           let iconName: keyof typeof Ionicons.glyphMap = 'grid-outline';
           if (route.name === 'Dashboard') {
@@ -107,7 +123,7 @@ export function InvestigatorTabs() {
           } else if (route.name === 'More') {
             iconName = focused ? 'ellipsis-horizontal-circle' : 'ellipsis-horizontal-circle-outline';
           }
-          return <Ionicons name={iconName} size={22} color={color} />;
+          return <Ionicons name={iconName} size={24} color={color} />;
         },
       })}
     >

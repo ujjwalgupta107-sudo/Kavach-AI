@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Ca
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { dashboardService } from '../../services/api/dashboardService';
 import { alertService } from '../../services/api/alertService';
-import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
+import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 
 export function DashboardScreen() {
@@ -73,8 +73,8 @@ export function DashboardScreen() {
                     <Text style={styles.kpiLabel}>{kpi.label}</Text>
                     <Text style={[styles.kpiValue, { color: kpi.color }]}>{kpi.value}</Text>
                   </View>
-                  <View style={[styles.kpiIcon, { backgroundColor: `${kpi.color}15` }]}>
-                    <Ionicons name={kpi.icon as any} size={20} color={kpi.color} />
+                  <View style={[styles.kpiIcon, { backgroundColor: `${kpi.color}15`, borderColor: `${kpi.color}30` }]}>
+                    <Ionicons name={kpi.icon as any} size={22} color={kpi.color} />
                   </View>
                 </View>
               </CardContent>
@@ -140,7 +140,7 @@ export function DashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0b1120' },
+  container: { flex: 1, backgroundColor: colors.surface.base },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -150,39 +150,39 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.surface.raised,
-    backgroundColor: colors.surface.base,
+    backgroundColor: 'rgba(9, 9, 11, 0.95)',
   },
-  title: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text.primary },
+  title: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text.primary, letterSpacing: 0.5 },
   subtitle: { fontSize: fontSize.sm, color: colors.text.secondary, marginTop: 4 },
   liveBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: colors.surface.elevated,
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
     borderWidth: 1,
-    borderColor: colors.surface.raised,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: borderRadius.md,
+    borderRadius: borderRadius.full,
   },
   liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.status.safe },
-  liveText: { fontSize: fontSize.xs, color: colors.text.muted },
+  liveText: { fontSize: fontSize.xs, color: colors.status.safe, fontWeight: fontWeight.bold },
   scrollContent: { padding: spacing.lg, paddingBottom: 100 },
   kpiGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, marginBottom: spacing.xl },
-  kpiCard: { width: (Dimensions.get('window').width - spacing.lg * 2 - spacing.md) / 2 - 1 },
-  kpiContent: { paddingVertical: spacing.lg },
+  kpiCard: { width: (Dimensions.get('window').width - spacing.lg * 2 - spacing.md) / 2 },
+  kpiContent: { paddingVertical: spacing.lg, paddingHorizontal: spacing.md },
   kpiRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  kpiLabel: { fontSize: fontSize.sm, color: colors.text.secondary, fontWeight: fontWeight.medium },
-  kpiValue: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold, marginTop: spacing.sm },
-  kpiIcon: { padding: spacing.sm, borderRadius: borderRadius.md },
+  kpiLabel: { fontSize: fontSize.sm, color: colors.text.secondary, fontWeight: '500' },
+  kpiValue: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold, marginTop: spacing.sm, ...shadows.textGlow('rgba(255,255,255,0.1)') },
+  kpiIcon: { padding: spacing.sm, borderRadius: borderRadius.lg, borderWidth: 1 },
   sectionCard: { marginBottom: spacing.xl },
   barRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
-  barLabel: { width: 90, fontSize: fontSize.sm, color: colors.text.secondary },
-  barTrack: { flex: 1, height: 20, backgroundColor: colors.surface.base, borderRadius: borderRadius.sm, overflow: 'hidden' },
-  barFill: { height: '100%', backgroundColor: colors.status.info, borderRadius: borderRadius.sm },
-  barValue: { width: 30, fontSize: fontSize.sm, color: colors.text.primary, textAlign: 'right' },
+  barLabel: { width: 90, fontSize: fontSize.sm, color: colors.text.secondary, textTransform: 'capitalize' },
+  barTrack: { flex: 1, height: 12, backgroundColor: 'rgba(24, 24, 27, 0.5)', borderRadius: borderRadius.full, overflow: 'hidden' },
+  barFill: { height: '100%', backgroundColor: colors.brand.blue, borderRadius: borderRadius.full },
+  barValue: { width: 30, fontSize: fontSize.sm, color: colors.text.primary, textAlign: 'right', fontWeight: fontWeight.bold },
   alertHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  viewAll: { fontSize: fontSize.xs, color: colors.brand.cyan },
+  viewAll: { fontSize: fontSize.xs, color: colors.brand.cyan, fontWeight: fontWeight.bold, textTransform: 'uppercase' },
   alertItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -190,11 +190,11 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     marginBottom: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: colors.surface.raised,
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
   },
-  alertDot: { width: 8, height: 8, borderRadius: 4, marginTop: 6 },
+  alertDot: { width: 8, height: 8, borderRadius: 4, marginTop: 6, ...shadows.glow('rgba(255,255,255,0.1)') },
   alertContent: { flex: 1 },
-  alertTitle: { fontSize: fontSize.sm, fontWeight: fontWeight.medium, color: colors.text.primary, lineHeight: 20 },
-  alertTime: { fontSize: fontSize.xs, color: colors.text.muted, marginTop: 4 },
+  alertTitle: { fontSize: fontSize.sm, fontWeight: '500', color: colors.text.primary, lineHeight: 20 },
+  alertTime: { fontSize: fontSize.xs, color: colors.text.muted, marginTop: 6 },
   emptyText: { fontSize: fontSize.sm, color: colors.text.muted },
 });

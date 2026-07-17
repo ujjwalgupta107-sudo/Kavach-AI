@@ -6,7 +6,7 @@ import { Button } from '../../components/ui/Button';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { RiskBadge } from '../../components/ui/RiskBadge';
 import { caseService } from '../../services/api/caseService';
-import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
+import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 
 type ResultRouteParams = {
@@ -70,9 +70,10 @@ export function AnalyzeResultScreen() {
   if (error || !result) {
     return (
       <View style={styles.errorContainer}>
+        <Ionicons name="alert-circle-outline" size={48} color={colors.status.critical} style={{ marginBottom: 16 }} />
         <Text style={styles.errorTitle}>Result not found</Text>
         {error && <Text style={styles.errorMsg}>{error}</Text>}
-        <Button onPress={() => navigation.goBack()}>Return to Shield</Button>
+        <Button onPress={() => navigation.goBack()} variant="glass">Return to Shield</Button>
       </View>
     );
   }
@@ -87,6 +88,7 @@ export function AnalyzeResultScreen() {
   };
 
   const verdictColor = getVerdictColor();
+  const glowStyle = shadows.glow(`${verdictColor}40`);
 
   return (
     <View style={styles.container}>
@@ -97,13 +99,13 @@ export function AnalyzeResultScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Verdict Card */}
-        <Card style={[styles.verdictCard, { borderColor: verdictColor }]}>
+        <Card style={[styles.verdictCard, { borderColor: `${verdictColor}80` }, glowStyle as any]} variant="glow">
           <View style={[styles.verdictStripe, { backgroundColor: verdictColor }]} />
           <CardContent style={styles.verdictContent}>
             <View style={styles.verdictRow}>
-              <View style={[styles.verdictIcon, { backgroundColor: `${verdictColor}15` }]}>
+              <View style={[styles.verdictIcon, { backgroundColor: `${verdictColor}15`, borderWidth: 1, borderColor: `${verdictColor}30` }]}>
                 <Ionicons
                   name={isHighRisk ? 'shield' : isInsufficient ? 'alert-circle' : 'checkmark-circle'}
                   size={36}
@@ -112,7 +114,7 @@ export function AnalyzeResultScreen() {
               </View>
               <View style={styles.verdictText}>
                 <Text style={[styles.verdictTitle, { color: verdictColor }]}>
-                  {isInsufficient ? result.riskLevel.replace('_', ' ') : `${result.riskLevel} RISK`}
+                  {isInsufficient ? result.riskLevel.replace(/_/g, ' ') : `${result.riskLevel} RISK`}
                 </Text>
                 {!isInsufficient && (
                   <Text style={styles.verdictScore}>{result.riskScore}% Scam Probability</Text>
@@ -121,8 +123,9 @@ export function AnalyzeResultScreen() {
             </View>
             {isHighRisk && (
               <View style={styles.scamTypeBox}>
+                <Ionicons name="warning-outline" size={16} color={colors.status.critical} style={{ marginRight: 6 }} />
                 <Text style={styles.scamTypeLabel}>Likely Scam Type:</Text>
-                <Text style={styles.scamTypeValue}>{(result.predictedType || '').replace('_', ' ')}</Text>
+                <Text style={styles.scamTypeValue}>{(result.predictedType || '').replace(/_/g, ' ')}</Text>
               </View>
             )}
             {isInsufficient && result.explanation && (
@@ -136,7 +139,10 @@ export function AnalyzeResultScreen() {
         {/* Red Flags */}
         {result.redFlags.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>WHY KAVACH FLAGGED THIS</Text>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="flag-outline" size={18} color={colors.brand.cyan} />
+              <Text style={styles.sectionTitle}>WHY KAVACH FLAGGED THIS</Text>
+            </View>
             {result.redFlags.map((flag: string, idx: number) => (
               <View key={idx} style={styles.flagItem}>
                 <Ionicons name="alert-circle" size={18} color={colors.status.warning} />
@@ -149,8 +155,11 @@ export function AnalyzeResultScreen() {
         {/* Extracted Entities */}
         {result.extractedEntities.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>EXTRACTED ENTITIES</Text>
-            <Card>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="people-outline" size={18} color={colors.brand.cyan} />
+              <Text style={styles.sectionTitle}>EXTRACTED ENTITIES</Text>
+            </View>
+            <Card style={styles.entitiesCard} variant="glow">
               {result.extractedEntities.map((entity: any, idx: number) => (
                 <View key={idx} style={[styles.entityRow, idx > 0 && styles.entityBorder]}>
                   <View style={styles.entityInfo}>
@@ -173,12 +182,17 @@ export function AnalyzeResultScreen() {
         {/* Recommended Actions */}
         {result.recommendedActions.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>WHAT YOU SHOULD DO NOW</Text>
-            <Card style={styles.actionsCard}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="list-outline" size={18} color={colors.brand.cyan} />
+              <Text style={styles.sectionTitle}>WHAT YOU SHOULD DO NOW</Text>
+            </View>
+            <Card style={styles.actionsCard} variant="glow">
               <CardContent>
                 {result.recommendedActions.map((action: string, idx: number) => (
                   <View key={idx} style={styles.actionItem}>
-                    <Text style={styles.actionNumber}>{idx + 1}.</Text>
+                    <View style={styles.actionNumberBox}>
+                        <Text style={styles.actionNumber}>{idx + 1}</Text>
+                    </View>
                     <Text style={styles.actionText}>{action}</Text>
                   </View>
                 ))}
@@ -189,10 +203,10 @@ export function AnalyzeResultScreen() {
 
         {/* Action Buttons */}
         <View style={styles.buttonSection}>
-          <Button variant="danger" onPress={() => Alert.alert('Report Submitted', 'Incident reported successfully.')}>
+          <Button variant="danger" onPress={() => Alert.alert('Report Submitted', 'Incident reported successfully.')} style={shadows.glow('rgba(239, 68, 68, 0.4)') as any}>
             Report This Incident
           </Button>
-          <Button variant="secondary" onPress={() => Alert.alert('Saved', 'Analysis saved to your reports.')}>
+          <Button variant="glass" onPress={() => Alert.alert('Saved', 'Analysis saved to your reports.')}>
             Save Analysis
           </Button>
         </View>
@@ -213,79 +227,84 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.surface.raised,
+    backgroundColor: 'rgba(9, 9, 11, 0.95)',
   },
   backBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  backText: { fontSize: fontSize.sm, color: colors.text.secondary },
+  backText: { fontSize: fontSize.sm, color: colors.text.secondary, fontWeight: '500' },
   scrollContent: { padding: spacing.lg, paddingBottom: 100 },
-  verdictCard: { borderWidth: 2, marginBottom: spacing.xl },
+  verdictCard: { borderWidth: 1, marginBottom: spacing.xl, overflow: 'hidden', backgroundColor: 'rgba(24, 24, 27, 0.8)' },
   verdictStripe: { height: 4, width: '100%' },
   verdictContent: { paddingTop: spacing.lg },
   verdictRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
   verdictIcon: { width: 64, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center' },
   verdictText: { flex: 1 },
-  verdictTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold },
+  verdictTitle: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold, letterSpacing: 0.5 },
   verdictScore: { fontSize: fontSize.md, fontWeight: fontWeight.medium, color: colors.text.primary, marginTop: 4 },
   scamTypeBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: spacing.lg,
-    backgroundColor: colors.surface.base,
+    backgroundColor: 'rgba(239, 68, 68, 0.05)',
     borderWidth: 1,
-    borderColor: colors.surface.raised,
+    borderColor: 'rgba(239, 68, 68, 0.2)',
     padding: spacing.md,
     borderRadius: borderRadius.md,
   },
-  scamTypeLabel: { fontSize: fontSize.xs, color: colors.text.muted, marginBottom: 4 },
-  scamTypeValue: { fontSize: fontSize.base, fontWeight: fontWeight.bold, color: colors.text.primary },
+  scamTypeLabel: { fontSize: fontSize.sm, color: colors.text.secondary, marginRight: 8 },
+  scamTypeValue: { fontSize: fontSize.base, fontWeight: 'bold', color: colors.text.primary, textTransform: 'capitalize' },
   explanationBox: {
     marginTop: spacing.lg,
-    backgroundColor: colors.surface.base,
+    backgroundColor: 'rgba(255,255,255,0.02)',
     borderWidth: 1,
-    borderColor: colors.surface.raised,
+    borderColor: 'rgba(255,255,255,0.05)',
     padding: spacing.md,
     borderRadius: borderRadius.md,
   },
-  explanationText: { fontSize: fontSize.base, color: colors.text.primary, lineHeight: 22 },
+  explanationText: { fontSize: fontSize.base, color: colors.text.primary, lineHeight: 24 },
   section: { marginBottom: spacing.xl },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: spacing.md },
   sectionTitle: {
-    fontSize: fontSize.xs,
-    fontWeight: fontWeight.bold,
-    color: colors.text.secondary,
+    fontSize: fontSize.sm,
+    fontWeight: 'bold',
+    color: colors.brand.cyan,
     letterSpacing: 1,
-    marginBottom: spacing.md,
   },
   flagItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.md,
-    backgroundColor: colors.surface.elevated,
+    backgroundColor: 'rgba(245, 158, 11, 0.05)',
     borderWidth: 1,
-    borderColor: colors.surface.raised,
+    borderColor: 'rgba(245, 158, 11, 0.2)',
     padding: spacing.md,
     borderRadius: borderRadius.lg,
     marginBottom: spacing.sm,
   },
-  flagText: { flex: 1, fontSize: fontSize.sm, color: colors.text.primary, lineHeight: 20 },
+  flagText: { flex: 1, fontSize: fontSize.sm, color: colors.text.primary, lineHeight: 22 },
+  entitiesCard: { backgroundColor: 'rgba(24, 24, 27, 0.7)' },
   entityRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.md },
-  entityBorder: { borderTopWidth: 1, borderTopColor: colors.surface.raised },
-  entityInfo: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flex: 1 },
+  entityBorder: { borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)' },
+  entityInfo: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, flex: 1 },
   entityTypeBadge: {
-    backgroundColor: colors.surface.base,
+    backgroundColor: 'rgba(255,255,255,0.05)',
     paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingVertical: 4,
     borderRadius: borderRadius.sm,
     borderWidth: 1,
-    borderColor: colors.surface.raised,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
-  entityTypeText: { fontSize: 9, fontWeight: fontWeight.bold, color: colors.text.muted, fontFamily: 'monospace', textTransform: 'uppercase' },
-  entityValue: { fontSize: fontSize.base, fontWeight: fontWeight.medium, color: colors.text.primary },
-  linkedBadge: { backgroundColor: 'rgba(245, 158, 11, 0.1)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: borderRadius.sm },
-  linkedText: { fontSize: fontSize.xs, color: colors.status.warning },
-  actionsCard: { backgroundColor: 'rgba(30, 58, 138, 0.1)', borderColor: 'rgba(30, 58, 138, 0.3)' },
-  actionItem: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },
-  actionNumber: { fontSize: fontSize.base, fontWeight: fontWeight.bold, color: colors.text.primary },
-  actionText: { flex: 1, fontSize: fontSize.base, color: colors.text.primary, lineHeight: 22 },
-  buttonSection: { gap: spacing.md, marginTop: spacing.lg, marginBottom: spacing.lg },
-  disclaimer: { fontSize: fontSize.xs, color: colors.text.muted, textAlign: 'center', paddingVertical: spacing.xl },
+  entityTypeText: { fontSize: 10, fontWeight: 'bold', color: colors.text.secondary, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: 0.5 },
+  entityValue: { fontSize: fontSize.base, fontWeight: fontWeight.bold, color: colors.text.primary, flex: 1 },
+  linkedBadge: { backgroundColor: 'rgba(245, 158, 11, 0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: borderRadius.sm, borderWidth: 1, borderColor: 'rgba(245, 158, 11, 0.3)' },
+  linkedText: { fontSize: 10, color: colors.status.warning, fontWeight: 'bold' },
+  actionsCard: { backgroundColor: 'rgba(14, 165, 233, 0.05)', borderColor: 'rgba(14, 165, 233, 0.2)' },
+  actionItem: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.md, alignItems: 'flex-start' },
+  actionNumberBox: { width: 24, height: 24, borderRadius: 12, backgroundColor: 'rgba(14, 165, 233, 0.2)', justifyContent: 'center', alignItems: 'center' },
+  actionNumber: { fontSize: fontSize.xs, fontWeight: 'bold', color: colors.brand.cyan },
+  actionText: { flex: 1, fontSize: fontSize.base, color: colors.text.primary, lineHeight: 24 },
+  buttonSection: { gap: spacing.md, marginTop: spacing.md, marginBottom: spacing.xl },
+  disclaimer: { fontSize: fontSize.xs, color: colors.text.muted, textAlign: 'center', paddingBottom: spacing.xl },
   errorContainer: { flex: 1, backgroundColor: colors.surface.base, justifyContent: 'center', alignItems: 'center', padding: spacing.xl },
-  errorTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text.primary, marginBottom: spacing.lg },
-  errorMsg: { fontSize: fontSize.base, color: colors.status.critical, marginBottom: spacing.lg, textAlign: 'center' },
+  errorTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text.primary, marginBottom: spacing.md },
+  errorMsg: { fontSize: fontSize.base, color: colors.status.critical, marginBottom: spacing.xl, textAlign: 'center' },
 });

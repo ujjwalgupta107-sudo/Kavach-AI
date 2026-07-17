@@ -2,6 +2,9 @@ from app.schemas.assistant import ChatRequest, ChatResponse
 from app.core.llm_provider import get_llm_provider
 
 from app.models.user import UserRole, User
+import logging
+
+logger = logging.getLogger(__name__)
 
 class AIAssistantService:
     async def chat(self, request: ChatRequest, user: User) -> ChatResponse:
@@ -35,4 +38,11 @@ class AIAssistantService:
             )
             return ChatResponse(reply=reply)
         except Exception as e:
-            return ChatResponse(reply=f"System Error: Unable to reach KAVACH Cognitive Engine. Fallback diagnostic: {str(e)}")
+            error_str = str(e).lower()
+            logger.error(f"AI Assistant error: {e}")
+            if "503" in error_str or "429" in error_str or "high demand" in error_str:
+                reply_msg = "I am currently experiencing high demand. Please try again in a few moments."
+            else:
+                reply_msg = "I am having trouble connecting to my cognitive engine right now. Please try again later."
+            return ChatResponse(reply=reply_msg)
+

@@ -160,7 +160,7 @@ async def public_report(request: PublicReportRequest, db: AsyncSession = Depends
         # Fallback to creating a dummy citizen if none exist
         system_user = User(
             email="anonymous_citizen@kavach.ai",
-            hashed_password="fake",
+            password_hash="fake",
             full_name="Anonymous Citizen",
             role=UserRole.CITIZEN,
             is_active=True

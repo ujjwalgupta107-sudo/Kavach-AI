@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
+import ReactMarkdown from 'react-markdown';
 import { ShieldAlert, CheckCircle, AlertTriangle, ChevronLeft, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { caseService } from '../../services/api/caseService';
@@ -126,11 +127,9 @@ export function AnalyzeResult() {
                 </div>
               )}
             </div>
-            {(result.riskLevel === 'INSUFFICIENT_TEXT' || result.riskLevel === 'UNABLE_TO_ANALYZE') && (
-              <div className="mt-6 p-4 bg-surface-elevated rounded-lg text-text-primary border border-surface-raised">
-                {result.explanation}
-              </div>
-            )}
+            <div className="mt-6 p-4 bg-surface-elevated rounded-lg text-text-primary border border-surface-raised text-sm leading-relaxed space-y-4 [&>h1]:font-bold [&>h2]:font-bold [&>h3]:font-bold [&>ul]:list-disc [&>ul]:pl-5 [&>p]:mb-2 [&_strong]:text-brand-cyan">
+              <ReactMarkdown>{result.explanation}</ReactMarkdown>
+            </div>
           </CardContent>
         </Card>
       </motion.div>

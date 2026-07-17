@@ -8,7 +8,7 @@ import { RiskBadge } from '../../components/ui/RiskBadge';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { AIInvestigationPanel } from '../../components/investigation/AIInvestigationPanel';
 import { caseService } from '../../services/api/caseService';
-import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
+import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { CasesStackParamList } from '../../navigation/InvestigatorTabs';
 
@@ -47,8 +47,9 @@ export function CaseDetailScreen() {
   if (error || !caseData) {
     return (
       <View style={styles.errorContainer}>
+        <Ionicons name="alert-circle-outline" size={48} color={colors.status.critical} style={{ marginBottom: 16 }} />
         <Text style={styles.errorText}>{error || 'Case not found'}</Text>
-        <Button onPress={() => navigation.goBack()}>Go Back</Button>
+        <Button onPress={() => navigation.goBack()} variant="glass">Go Back</Button>
       </View>
     );
   }
@@ -72,8 +73,14 @@ export function CaseDetailScreen() {
             <StatusBadge status={caseInfo.status} />
           </View>
           <View style={styles.metaRow}>
-            <Text style={styles.metaItem}>🔍 {(caseInfo.scam_type || '').replace('_', ' ')}</Text>
-            <Text style={styles.metaItem}>📅 {new Date(caseInfo.created_at).toLocaleDateString()}</Text>
+            <View style={styles.metaBadge}>
+              <Ionicons name="search" size={14} color={colors.text.secondary} style={{ marginRight: 4 }} />
+              <Text style={styles.metaItem}>{(caseInfo.scam_type || '').replace('_', ' ')}</Text>
+            </View>
+            <View style={styles.metaBadge}>
+              <Ionicons name="calendar-outline" size={14} color={colors.text.secondary} style={{ marginRight: 4 }} />
+              <Text style={styles.metaItem}>{new Date(caseInfo.created_at).toLocaleDateString()}</Text>
+            </View>
           </View>
         </View>
       </View>
@@ -97,9 +104,12 @@ export function CaseDetailScreen() {
         {activeTab === 'overview' && (
           <>
             {/* Summary */}
-            <Card style={styles.sectionCard}>
+            <Card style={styles.sectionCard} variant="glow">
               <CardContent>
-                <Text style={styles.sectionTitle}>Incident Summary</Text>
+                <View style={styles.sectionHeader}>
+                  <Ionicons name="document-text-outline" size={20} color={colors.brand.cyan} />
+                  <Text style={styles.sectionTitle}>Incident Summary</Text>
+                </View>
                 <Text style={styles.description}>
                   {caseInfo.description || 'No description available for this incident.'}
                 </Text>
@@ -110,7 +120,10 @@ export function CaseDetailScreen() {
             {analysis.red_flags && analysis.red_flags.length > 0 && (
               <Card style={styles.sectionCard}>
                 <CardContent>
-                  <Text style={styles.sectionTitle}>Detected Tactics / Red Flags</Text>
+                  <View style={styles.sectionHeader}>
+                    <Ionicons name="flag-outline" size={20} color={colors.status.warning} />
+                    <Text style={styles.sectionTitle}>Detected Tactics / Red Flags</Text>
+                  </View>
                   {analysis.red_flags.map((flag: any, idx: number) => (
                     <View key={idx} style={styles.flagItem}>
                       <Ionicons name="alert-circle" size={16} color={colors.status.warning} />
@@ -124,17 +137,20 @@ export function CaseDetailScreen() {
             {/* Key Metrics */}
             <Card style={styles.sectionCard}>
               <CardContent>
-                <Text style={styles.sectionTitle}>Key Metrics</Text>
+                <View style={styles.sectionHeader}>
+                  <Ionicons name="stats-chart-outline" size={20} color={colors.brand.cyan} />
+                  <Text style={styles.sectionTitle}>Key Metrics</Text>
+                </View>
                 <View style={styles.metricsRow}>
                   <View style={styles.metricBox}>
                     <Text style={styles.metricLabel}>Risk Score</Text>
-                    <Text style={[styles.metricValue, { color: colors.status.critical }]}>
+                    <Text style={[styles.metricValue, { color: colors.status.critical }, shadows.glow('rgba(239, 68, 68, 0.2)') as any]}>
                       {analysis.risk_score || caseInfo.risk_score || 0}%
                     </Text>
                   </View>
                   <View style={styles.metricBox}>
                     <Text style={styles.metricLabel}>Entities</Text>
-                    <Text style={styles.metricValue}>{entities.length}</Text>
+                    <Text style={[styles.metricValue, shadows.glow('rgba(255, 255, 255, 0.1)') as any]}>{entities.length}</Text>
                   </View>
                 </View>
               </CardContent>
@@ -144,7 +160,10 @@ export function CaseDetailScreen() {
             {similarCases.length > 0 && (
               <Card style={styles.sectionCard}>
                 <CardContent>
-                  <Text style={styles.sectionTitle}>Semantically Similar Cases</Text>
+                  <View style={styles.sectionHeader}>
+                    <Ionicons name="git-network-outline" size={20} color={colors.brand.cyan} />
+                    <Text style={styles.sectionTitle}>Semantically Similar Cases</Text>
+                  </View>
                   {similarCases.map((sim: any) => (
                     <TouchableOpacity
                       key={sim.case_id}
@@ -152,8 +171,13 @@ export function CaseDetailScreen() {
                       onPress={() => (navigation as any).navigate('CaseDetail', { caseId: sim.case_id })}
                     >
                       <View style={styles.similarTop}>
-                        <Text style={styles.similarId}>{sim.case_id.substring(0, 8)}...</Text>
-                        <Text style={styles.similarScore}>{(sim.similarity_score * 100).toFixed(1)}% Match</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <Ionicons name="link-outline" size={14} color={colors.brand.cyan} style={{ marginRight: 4 }}/>
+                          <Text style={styles.similarId}>{sim.case_id.substring(0, 8)}...</Text>
+                        </View>
+                        <View style={styles.matchBadge}>
+                          <Text style={styles.similarScore}>{(sim.similarity_score * 100).toFixed(1)}% Match</Text>
+                        </View>
                       </View>
                       <Text style={styles.similarPreview} numberOfLines={2}>{sim.preview}</Text>
                     </TouchableOpacity>
@@ -180,7 +204,9 @@ export function CaseDetailScreen() {
                     <Text style={styles.entityValue}>{entity.value}</Text>
                   </View>
                   {entity.risk_score > 0 && (
-                    <Text style={styles.entityRisk}>Risk: {(entity.risk_score * 100).toFixed(0)}%</Text>
+                    <View style={styles.entityRiskBadge}>
+                      <Text style={styles.entityRisk}>Risk: {(entity.risk_score * 100).toFixed(0)}%</Text>
+                    </View>
                   )}
                 </CardContent>
               </Card>
@@ -194,55 +220,59 @@ export function CaseDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0b1120' },
+  container: { flex: 1, backgroundColor: colors.surface.base },
   header: {
     paddingHorizontal: spacing.lg,
     paddingTop: Platform.OS === 'ios' ? 56 : 40,
     paddingBottom: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.surface.raised,
-    backgroundColor: colors.surface.base,
+    backgroundColor: 'rgba(9, 9, 11, 0.95)',
   },
-  backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: spacing.sm },
-  backText: { fontSize: fontSize.sm, color: colors.text.secondary },
+  backBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: spacing.md },
+  backText: { fontSize: fontSize.sm, color: colors.text.secondary, fontWeight: '500' },
   headerInfo: {},
   idRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' },
-  caseId: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text.primary, fontFamily: 'monospace' },
-  metaRow: { flexDirection: 'row', gap: spacing.lg, marginTop: spacing.sm },
-  metaItem: { fontSize: fontSize.sm, color: colors.text.secondary },
+  caseId: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text.primary, fontFamily: 'monospace', letterSpacing: 0.5 },
+  metaRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md, flexWrap: 'wrap' },
+  metaBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.05)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: borderRadius.full },
+  metaItem: { fontSize: fontSize.xs, color: colors.text.secondary, textTransform: 'capitalize' },
   tabRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: colors.surface.raised,
-    backgroundColor: colors.surface.base,
+    backgroundColor: 'rgba(24, 24, 27, 0.8)',
   },
-  tab: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  tab: { flex: 1, paddingVertical: spacing.md, borderBottomWidth: 2, borderBottomColor: 'transparent', alignItems: 'center' },
   tabActive: { borderBottomColor: colors.brand.cyan },
-  tabText: { fontSize: fontSize.sm, color: colors.text.secondary, fontWeight: fontWeight.medium },
-  tabTextActive: { color: colors.brand.cyan },
+  tabText: { fontSize: fontSize.sm, color: colors.text.secondary, fontWeight: '500' },
+  tabTextActive: { color: colors.brand.cyan, fontWeight: 'bold' },
   scrollContent: { padding: spacing.lg, paddingBottom: 100 },
-  sectionCard: { marginBottom: spacing.lg },
-  sectionTitle: { fontSize: fontSize.md, fontWeight: fontWeight.semibold, color: colors.text.primary, marginBottom: spacing.md },
-  description: { fontSize: fontSize.base, color: colors.text.secondary, lineHeight: 22 },
-  flagItem: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, marginBottom: spacing.sm, backgroundColor: colors.surface.base, padding: spacing.md, borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.surface.raised },
-  flagText: { flex: 1, fontSize: fontSize.sm, color: colors.text.primary },
+  sectionCard: { marginBottom: spacing.lg, backgroundColor: 'rgba(24, 24, 27, 0.7)' },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: spacing.md },
+  sectionTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold, color: colors.text.primary },
+  description: { fontSize: fontSize.base, color: colors.text.secondary, lineHeight: 24 },
+  flagItem: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, marginBottom: spacing.sm, backgroundColor: 'rgba(245, 158, 11, 0.05)', padding: spacing.md, borderRadius: borderRadius.md, borderWidth: 1, borderColor: 'rgba(245, 158, 11, 0.2)' },
+  flagText: { flex: 1, fontSize: fontSize.sm, color: colors.text.primary, lineHeight: 20 },
   metricsRow: { flexDirection: 'row', gap: spacing.lg },
-  metricBox: {},
-  metricLabel: { fontSize: fontSize.xs, color: colors.text.muted, marginBottom: 4 },
-  metricValue: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, color: colors.text.primary, fontFamily: 'monospace' },
-  similarItem: { backgroundColor: colors.surface.base, padding: spacing.md, borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.surface.raised, marginBottom: spacing.sm },
-  similarTop: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-  similarId: { fontSize: fontSize.xs, color: colors.brand.cyan, fontFamily: 'monospace' },
-  similarScore: { fontSize: fontSize.xs, fontWeight: fontWeight.bold, color: colors.status.warning },
-  similarPreview: { fontSize: fontSize.xs, color: colors.text.muted, lineHeight: 16 },
-  entityCard: { marginBottom: spacing.sm },
+  metricBox: { flex: 1, backgroundColor: 'rgba(255,255,255,0.03)', padding: spacing.md, borderRadius: borderRadius.md, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+  metricLabel: { fontSize: fontSize.xs, color: colors.text.muted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 },
+  metricValue: { fontSize: fontSize['2xl'], fontWeight: fontWeight.bold, color: colors.text.primary, fontFamily: 'monospace' },
+  similarItem: { backgroundColor: 'rgba(255,255,255,0.03)', padding: spacing.md, borderRadius: borderRadius.md, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', marginBottom: spacing.sm },
+  similarTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  similarId: { fontSize: fontSize.xs, color: colors.brand.cyan, fontFamily: 'monospace', fontWeight: 'bold' },
+  matchBadge: { backgroundColor: 'rgba(245, 158, 11, 0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, borderWidth: 1, borderColor: 'rgba(245, 158, 11, 0.3)' },
+  similarScore: { fontSize: 10, fontWeight: 'bold', color: colors.status.warning },
+  similarPreview: { fontSize: fontSize.sm, color: colors.text.muted, lineHeight: 18 },
+  entityCard: { marginBottom: spacing.sm, backgroundColor: 'rgba(24, 24, 27, 0.5)' },
   entityContent: { paddingVertical: spacing.md, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  entityRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  entityTypeBadge: { backgroundColor: colors.surface.base, paddingHorizontal: 8, paddingVertical: 3, borderRadius: borderRadius.sm, borderWidth: 1, borderColor: colors.surface.raised },
-  entityTypeText: { fontSize: 9, fontWeight: fontWeight.bold, color: colors.text.muted, textTransform: 'uppercase', fontFamily: 'monospace' },
-  entityValue: { fontSize: fontSize.base, fontWeight: fontWeight.medium, color: colors.text.primary },
-  entityRisk: { fontSize: fontSize.sm, color: colors.status.warning },
+  entityRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, flex: 1 },
+  entityTypeBadge: { backgroundColor: 'rgba(255,255,255,0.05)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: borderRadius.full, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  entityTypeText: { fontSize: 10, fontWeight: 'bold', color: colors.text.secondary, textTransform: 'uppercase', fontFamily: 'monospace', letterSpacing: 0.5 },
+  entityValue: { fontSize: fontSize.base, fontWeight: fontWeight.bold, color: colors.text.primary, flex: 1 },
+  entityRiskBadge: { backgroundColor: 'rgba(245, 158, 11, 0.1)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, borderWidth: 1, borderColor: 'rgba(245, 158, 11, 0.3)' },
+  entityRisk: { fontSize: fontSize.xs, color: colors.status.warning, fontWeight: 'bold' },
   emptyText: { fontSize: fontSize.base, color: colors.text.muted, textAlign: 'center', paddingVertical: spacing['3xl'] },
   errorContainer: { flex: 1, backgroundColor: colors.surface.base, justifyContent: 'center', alignItems: 'center', padding: spacing.xl },
-  errorText: { fontSize: fontSize.base, color: colors.status.critical, marginBottom: spacing.lg },
+  errorText: { fontSize: fontSize.lg, color: colors.text.primary, marginBottom: spacing.xl, fontWeight: 'bold' },
 });

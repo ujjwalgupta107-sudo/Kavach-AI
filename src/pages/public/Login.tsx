@@ -50,7 +50,7 @@ export function Login() {
 
       login(data.token.access_token, userData);
 
-      if (userData.role === 'INVESTIGATOR') {
+      if (userData.role === 'INVESTIGATOR' || userData.role === 'ADMIN') {
         navigate('/intelligence');
       } else {
         navigate('/shield');

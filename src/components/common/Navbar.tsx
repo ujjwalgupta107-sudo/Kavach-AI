@@ -26,7 +26,7 @@ export function Navbar() {
               <span className="text-sm font-medium text-text-secondary hidden sm:block">
                 {user?.email} ({user?.role})
               </span>
-              {user?.role === 'INVESTIGATOR' && (
+              {(user?.role === 'INVESTIGATOR' || user?.role === 'ADMIN') && (
                 <Link to="/intelligence" className="text-sm font-medium text-text-secondary hover:text-brand-cyan hidden sm:block">
                   Intelligence Platform
                 </Link>

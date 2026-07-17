@@ -11,6 +11,7 @@ import { Input } from '../../components/ui/Input';
 import { API_BASE_URL } from '../../services/api/client';
 import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
 import { AuthStackParamList } from '../../navigation/AuthStack';
+import { Ionicons } from '@expo/vector-icons';
 
 type RegisterNavProp = NativeStackNavigationProp<AuthStackParamList, 'Register'>;
 
@@ -74,12 +75,17 @@ export function RegisterScreen() {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        <Card style={styles.card}>
+        <Card style={styles.card} variant="glow">
           <View style={styles.cardInner}>
-            <Text style={styles.title}>Create KAVACH Account</Text>
+            <View style={styles.header}>
+               <Ionicons name="person-add-outline" size={32} color={colors.brand.cyan} />
+               <Text style={styles.title}>Create Account</Text>
+            </View>
+            <Text style={styles.subtitle}>Join KAVACH to start your journey</Text>
 
             {error && (
               <View style={styles.errorBox}>
+                <Ionicons name="warning" size={16} color={colors.status.critical} style={{ marginRight: 8 }} />
                 <Text style={styles.errorText}>{error}</Text>
               </View>
             )}
@@ -126,16 +132,18 @@ export function RegisterScreen() {
                     style={[styles.roleBtn, role === 'CITIZEN' && styles.roleBtnActive]}
                     onPress={() => setRole('CITIZEN')}
                   >
+                    <Ionicons name="shield-outline" size={18} color={role === 'CITIZEN' ? colors.brand.cyan : colors.text.secondary} style={{ marginRight: 6 }}/>
                     <Text style={[styles.roleBtnText, role === 'CITIZEN' && styles.roleBtnTextActive]}>
-                      🛡️ Citizen
+                      Citizen
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.roleBtn, role === 'INVESTIGATOR' && styles.roleBtnActive]}
                     onPress={() => setRole('INVESTIGATOR')}
                   >
+                    <Ionicons name="search-outline" size={18} color={role === 'INVESTIGATOR' ? colors.brand.cyan : colors.text.secondary} style={{ marginRight: 6 }}/>
                     <Text style={[styles.roleBtnText, role === 'INVESTIGATOR' && styles.roleBtnTextActive]}>
-                      🔍 Investigator
+                      Investigator
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -150,8 +158,8 @@ export function RegisterScreen() {
                 />
               )}
 
-              <Button onPress={handleSubmit} loading={loading} style={styles.submitButton}>
-                {loading ? 'Registering...' : 'Register'}
+              <Button onPress={handleSubmit} loading={loading} style={styles.submitButton} size="lg">
+                {loading ? 'Registering...' : 'Register Account'}
               </Button>
             </View>
 
@@ -177,29 +185,44 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     padding: spacing.xl,
+    paddingVertical: spacing['4xl'],
   },
   card: {
-    backgroundColor: 'rgba(30, 41, 59, 0.7)',
+    backgroundColor: 'rgba(24, 24, 27, 0.8)',
   },
   cardInner: {
     padding: spacing['2xl'],
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
+  },
   title: {
-    fontSize: fontSize.xl,
+    fontSize: fontSize['2xl'],
     fontWeight: fontWeight.bold,
     color: colors.text.primary,
+    marginLeft: spacing.sm,
+  },
+  subtitle: {
+    fontSize: fontSize.sm,
+    color: colors.text.muted,
     textAlign: 'center',
     marginBottom: spacing['2xl'],
   },
   errorBox: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(244, 63, 94, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.5)',
+    borderColor: 'rgba(244, 63, 94, 0.3)',
     borderRadius: borderRadius.md,
     padding: spacing.md,
     marginBottom: spacing.lg,
   },
   errorText: {
+    flex: 1,
     fontSize: fontSize.sm,
     color: colors.status.critical,
   },
@@ -208,9 +231,11 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: fontSize.sm,
-    fontWeight: fontWeight.medium,
+    fontWeight: '500',
     color: colors.text.secondary,
-    marginBottom: 6,
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   roleRow: {
     flexDirection: 'row',
@@ -218,33 +243,34 @@ const styles = StyleSheet.create({
   },
   roleBtn: {
     flex: 1,
-    height: 44,
-    backgroundColor: colors.surface.base,
+    height: 48,
+    flexDirection: 'row',
+    backgroundColor: 'rgba(24, 24, 27, 0.5)',
     borderWidth: 1,
     borderColor: colors.surface.raised,
-    borderRadius: borderRadius.md,
+    borderRadius: borderRadius.lg,
     justifyContent: 'center',
     alignItems: 'center',
   },
   roleBtnActive: {
     borderColor: colors.brand.cyan,
-    backgroundColor: 'rgba(6, 182, 212, 0.1)',
+    backgroundColor: 'rgba(56, 189, 248, 0.1)',
   },
   roleBtnText: {
     fontSize: fontSize.sm,
     color: colors.text.secondary,
-    fontWeight: fontWeight.medium,
+    fontWeight: fontWeight.bold,
   },
   roleBtnTextActive: {
     color: colors.brand.cyan,
   },
   submitButton: {
-    marginTop: spacing.sm,
+    marginTop: spacing.md,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: spacing['2xl'],
+    marginTop: spacing['3xl'],
   },
   footerText: {
     fontSize: fontSize.sm,
@@ -253,6 +279,6 @@ const styles = StyleSheet.create({
   footerLink: {
     fontSize: fontSize.sm,
     color: colors.brand.cyan,
-    fontWeight: fontWeight.medium,
+    fontWeight: fontWeight.bold,
   },
 });

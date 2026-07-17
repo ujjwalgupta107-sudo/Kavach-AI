@@ -2,14 +2,17 @@
  * KAVACH Mobile App — API Client
  * Mirrors the web's apiClient using fetch + AsyncStorage for token management.
  */
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TOKEN_KEY = 'kavach_token';
-
 // Use environment variable or fallback to localhost
 // For Android emulator: 10.0.2.2, for iOS simulator: localhost
 const getDefaultBaseUrl = () => {
-  return 'http://10.0.2.2:8000';
+  if (Platform.OS === 'android') {
+    return 'http://10.0.2.2:8000';
+  }
+  return 'http://localhost:8000';
 };
 
 export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || getDefaultBaseUrl();

@@ -9,7 +9,6 @@ Shield page can display real results without requiring a citizen account.
 from typing import List, Optional
 from fastapi import APIRouter
 from pydantic import BaseModel, Field, field_validator
-import easyocr
 import io
 
 from app.models.case import ScamType, RiskLevel
@@ -126,9 +125,20 @@ async def public_analyze_image(file: UploadFile = File(...)):
     """
     content = await file.read()
     try:
+        import easyocr
         reader = easyocr.Reader(['en'], gpu=False)
         result = reader.readtext(content)
         extracted_text = " ".join([text for _, text, _ in result])
+    except ImportError:
+        return PublicAnalyzeResponse(
+            risk_score=0.0,
+            risk_level="UNABLE_TO_ANALYZE",
+            scam_category="OTHER",
+            explanation="Image analysis (OCR) is disabled on the free tier to save memory. Please copy the text from the image and use the text analysis tool instead.",
+            red_flags=[],
+            extracted_entities=[],
+            recommended_actions=[]
+        )
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"OCR failed: {e}")
         

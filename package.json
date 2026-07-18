@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev:frontend": "vite",
+    "dev:backend": "cd backend && .\\venv\\Scripts\\python.exe -m uvicorn app.main:app --reload --port 8000",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
@@ -44,11 +46,15 @@
     "@types/react-dom": "^19.2.3",
     "@types/react-native": "^0.72.8",
     "@vitejs/plugin-react": "^6.0.3",
+    "concurrently": "^10.0.3",
     "oxlint": "^1.71.0",
     "react-native": "^0.86.0",
     "react-native-safe-area-context": "^5.8.0",
     "react-native-screens": "^4.25.2",
     "typescript": "~6.0.2",
     "vite": "^8.1.1"
+  },
+  "overrides": {
+    "es-toolkit": "1.48.1"
   }
 }

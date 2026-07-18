@@ -73,7 +73,14 @@ class OllamaProvider(BaseLLMProvider):
 
 class MockProvider(BaseLLMProvider):
     async def generate(self, system_prompt: str, user_prompt: str, max_tokens: int = 1024, temperature: float = 0.2) -> str:
-        return "This is a mock provider output based on the provided context."
+        # Return a realistic-looking response based on common investigator questions
+        lower_prompt = user_prompt.lower()
+        if "summarize" in lower_prompt or "cluster" in lower_prompt:
+            return "Based on the intelligence data, this cluster involves a coordinated investment scam operating out of multiple locations. High risk entities include a shared crypto wallet and two VOIP phone numbers used across 5 different cases. I recommend freezing the associated accounts immediately."
+        elif "hello" in lower_prompt or "hi" in lower_prompt:
+            return "Hello Investigator. I am ready to assist you. You can ask me to summarize cases, analyze entity networks, or investigate specific clusters."
+        else:
+            return "I have analyzed the provided context. The data indicates suspicious patterns consistent with organized fraud. Several entities share common identifiers. Please specify if you need a detailed breakdown of a specific case or cluster."
 
 def get_llm_provider(allow_mock: bool = False) -> BaseLLMProvider:
     provider_name = settings.AI_PROVIDER.lower()

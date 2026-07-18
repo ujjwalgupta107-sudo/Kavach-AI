@@ -52,7 +52,7 @@ async def init_db():
         )
         citizen = User(
             email="citizen@example.com",
-            password_hash=get_password_hash("test1234"),
+            password_hash=get_password_hash("password123"),
             role=UserRole.CITIZEN,
             full_name="Jane Doe",
             is_active=True,

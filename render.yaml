@@ -1,9 +1,9 @@
-services:
+databases:
   # PostgreSQL Database
-  - type: psql
-    name: kavach-db
+  - name: kavach-db
     plan: free
 
+services:
   # FastAPI Backend
   - type: web
     name: kavach-backend

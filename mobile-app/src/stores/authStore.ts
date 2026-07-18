@@ -10,6 +10,8 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  language: string;
+  setLanguage: (lang: string) => void;
   login: (token: string, user: User) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
@@ -19,6 +21,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
+  language: 'English',
+
+  setLanguage: (lang: string) => set({ language: lang }),
 
   login: async (token: string, user: User) => {
     await apiClient.setAuthToken(token);

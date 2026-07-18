@@ -291,6 +291,19 @@ export function ShieldHomeScreen() {
           </CardContent>
         </Card>
 
+        {/* Currency Scanner Banner */}
+        <Card style={styles.inputCard} variant="glow">
+          <CardContent style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ flex: 1, marginRight: spacing.md }}>
+              <Text style={styles.inputTitle}>Verify Currency (FICN)</Text>
+              <Text style={[styles.subtitle, { marginBottom: 0, marginTop: 4, fontSize: fontSize.sm }]}>Scan Indian banknotes to detect counterfeits instantly.</Text>
+            </View>
+            <Button size="sm" onPress={() => navigation.navigate('CurrencyScanner')}>
+              Scan Now
+            </Button>
+          </CardContent>
+        </Card>
+
         {!isAuthenticated && (
           <View style={styles.signInHintBox}>
             <Ionicons name="information-circle-outline" size={20} color={colors.text.muted} />

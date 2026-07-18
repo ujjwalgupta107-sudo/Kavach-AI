@@ -1,13 +1,16 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, Alert, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, Alert, ScrollView, Modal } from 'react-native';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { useAuthStore } from '../../stores/authStore';
 import { colors, spacing, fontSize, fontWeight, borderRadius, shadows } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 
+const REGIONAL_LANGUAGES = ['English', 'Hindi', 'Tamil', 'Telugu', 'Kannada', 'Malayalam', 'Marathi', 'Gujarati', 'Punjabi', 'Bengali', 'Odia', 'Urdu'];
+
 export function ProfileScreen() {
-  const { user, logout } = useAuthStore();
+  const { user, logout, language, setLanguage } = useAuthStore();
+  const [langModalVisible, setLangModalVisible] = useState(false);
 
   const handleLogout = () => {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -44,6 +47,17 @@ export function ProfileScreen() {
 
         {/* Info items */}
         <Card style={styles.menuCard}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => setLangModalVisible(true)}>
+            <View style={styles.menuIconBox}>
+                <Ionicons name="language-outline" size={20} color={colors.brand.cyan} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.menuText}>App Language</Text>
+              <Text style={{ fontSize: 12, color: colors.text.muted, marginTop: 2 }}>{language}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.text.muted} />
+          </TouchableOpacity>
+          <View style={styles.divider} />
           <TouchableOpacity style={styles.menuItem}>
             <View style={styles.menuIconBox}>
                 <Ionicons name="information-circle-outline" size={20} color={colors.brand.cyan} />
@@ -76,6 +90,32 @@ export function ProfileScreen() {
 
         <Text style={styles.version}>KAVACH AI v1.0.0</Text>
       </ScrollView>
+
+      {/* Language Selection Modal */}
+      <Modal visible={langModalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Language</Text>
+              <TouchableOpacity onPress={() => setLangModalVisible(false)}>
+                <Ionicons name="close" size={24} color={colors.text.primary} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {REGIONAL_LANGUAGES.map((lang) => (
+                <TouchableOpacity
+                  key={lang}
+                  style={[styles.langItem, language === lang && styles.langItemActive]}
+                  onPress={() => { setLanguage(lang); setLangModalVisible(false); }}
+                >
+                  <Text style={[styles.langText, language === lang && styles.langTextActive]}>{lang}</Text>
+                  {language === lang && <Ionicons name="checkmark" size={20} color={colors.brand.cyan} />}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -139,4 +179,12 @@ const styles = StyleSheet.create({
   divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.05)' },
   logoutBtn: { marginTop: spacing.lg },
   version: { fontSize: fontSize.xs, color: colors.text.muted, textAlign: 'center', marginTop: spacing.xl },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: colors.surface.elevated, borderTopLeftRadius: borderRadius.xl, borderTopRightRadius: borderRadius.xl, padding: spacing.lg, maxHeight: '80%' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
+  modalTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.bold, color: colors.text.primary },
+  langItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.surface.raised },
+  langItemActive: { backgroundColor: 'rgba(6, 182, 212, 0.1)' },
+  langText: { fontSize: fontSize.base, color: colors.text.primary },
+  langTextActive: { color: colors.brand.cyan, fontWeight: 'bold' },
 });

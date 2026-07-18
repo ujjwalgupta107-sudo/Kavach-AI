@@ -17,23 +17,33 @@ The platform consists of a **FastAPI Python Backend**, a **React Web Dashboard**
 - **Case Management:** Tools for investigators to review citizen reports, update case statuses, and communicate safety updates.
 - **Real-Time Dashboards:** Key performance indicators and metrics tracking the volume and types of ongoing fraud.
 
-## 🚀 Tech Stack
+## 🚀 Tech Stack & Architecture
 
-### Frontend (Web)
+### 🧠 Artificial Intelligence & Machine Learning (AI/ML)
+- **Threat Detection ML Pipelines:** Real-time AI analysis of text, audio, and files for fraud risk scoring and intent classification.
+- **AI Conversational Assistant:** LLM-powered assistant integrated directly into the citizen workflows for intelligent reporting guidance.
+- **Pattern Recognition & Clustering:** Advanced machine learning algorithms applied to scam networks to identify and cluster criminal syndicates.
+
+### 🐳 Infrastructure & CI/CD Pipelines
+- **Containerization:** Fully containerized environment using **Docker**.
+- **Orchestration:** `docker-compose` setup for local microservices orchestration.
+- **Deployment Pipelines:** Configured for seamless CI/CD pipelines (e.g., GitHub Actions) to automate testing, builds, and production deployments.
+
+### ⚙️ Backend (Python)
+- **Framework:** Python 3.10+ with **FastAPI** for high-performance async APIs.
+- **Database:** SQLite (aiosqlite) with SQLAlchemy ORM and Alembic for database migrations.
+- **Testing:** Pytest
+
+### 💻 Frontend (Web)
 - **Framework:** React 19 + Vite + TypeScript
 - **Styling:** Tailwind CSS + Framer Motion
 - **Data Fetching & State:** React Query + Zustand
 - **Visualization:** React Leaflet (Maps), Cytoscape.js (Network Graphs), Recharts (Metrics)
 
-### Mobile App (React Native)
+### 📱 Mobile App (React Native)
 - **Framework:** React Native + Expo + TypeScript
 - **Navigation:** React Navigation (Native Stack & Bottom Tabs)
 - **Styling:** Tailwind CSS (via NativeWind/custom classes)
-
-### Backend (Python)
-- **Framework:** FastAPI
-- **Database:** SQLite (aiosqlite) with SQLAlchemy ORM and Alembic for migrations
-- **Testing:** Pytest
 
 ## 🛠️ Getting Started (Local Development)
 

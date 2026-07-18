@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { ChatMessage } from '../../types';
 
 export function AssistantScreen() {
-  const { user } = useAuthStore();
+  const { user, language } = useAuthStore();
   const isCitizen = user?.role === 'CITIZEN';
   const insets = useSafeAreaInsets();
   
@@ -47,7 +47,7 @@ export function AssistantScreen() {
     setLoading(true);
 
     try {
-      const data = await apiClient.post<any>('/api/v1/assistant/chat', { message: userMsg });
+      const data = await apiClient.post<any>('/api/v1/assistant/chat', { message: userMsg, language });
       setMessages(prev => [...prev, { id: Date.now().toString() + Math.random().toString(36), role: 'assistant', content: data.reply }]);
     } catch (error) {
       setMessages(prev => [

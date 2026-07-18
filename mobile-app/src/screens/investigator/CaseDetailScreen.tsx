@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, Alert } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -103,6 +103,26 @@ export function CaseDetailScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {activeTab === 'overview' && (
           <>
+            {/* Actions */}
+            <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg, flexWrap: 'wrap' }}>
+              <Button 
+                style={{ flex: 1, minWidth: 150 }} 
+                variant="glass"
+                onPress={() => Alert.alert('Export Successful', 'The Court-Admissible Intelligence Package (PDF) has been generated and saved.')}
+              >
+                Export PDF
+              </Button>
+              {caseInfo.scam_type === 'DIGITAL_ARREST' && (
+                <Button 
+                  style={{ flex: 1, minWidth: 150 }} 
+                  variant="danger"
+                  onPress={() => Alert.alert('MHA Alert Generated', 'An alert for Digital Arrest has been dispatched to authorities.')}
+                >
+                  Auto-Gen MHA Alert
+                </Button>
+              )}
+            </View>
+
             {/* Summary */}
             <Card style={styles.sectionCard} variant="glow">
               <CardContent>

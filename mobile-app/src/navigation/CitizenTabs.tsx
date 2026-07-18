@@ -12,10 +12,13 @@ import { ReportHistoryScreen } from '../screens/citizen/ReportHistoryScreen';
 import { AssistantScreen } from '../screens/shared/AssistantScreen';
 import { ProfileScreen } from '../screens/shared/ProfileScreen';
 
+import { CurrencyScannerScreen } from '../screens/citizen/CurrencyScannerScreen';
+
 // Shield stack (Shield home + result detail)
 export type ShieldStackParamList = {
   ShieldHome: undefined;
   AnalyzeResult: { resultData?: any; caseId?: string };
+  CurrencyScanner: undefined;
 };
 
 const ShieldStack = createNativeStackNavigator<ShieldStackParamList>();
@@ -30,6 +33,7 @@ function ShieldNavigator() {
     >
       <ShieldStack.Screen name="ShieldHome" component={ShieldHomeScreen} />
       <ShieldStack.Screen name="AnalyzeResult" component={AnalyzeResultScreen} />
+      <ShieldStack.Screen name="CurrencyScanner" component={CurrencyScannerScreen} />
     </ShieldStack.Navigator>
   );
 }

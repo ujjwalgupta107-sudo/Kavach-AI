@@ -28,6 +28,8 @@ class AIAssistantService:
                 "You CANNOT query arbitrary case data, expose investigator notes, expose private case intelligence, "
                 "expose internal database IDs, claim police action occurred, or declare guilt."
             )
+            
+        system_prompt += f"\n\nYou MUST communicate primarily in the following language: {request.language}. Translate your responses to this language naturally while remaining professional."
         
         try:
             llm = get_llm_provider(allow_mock=True)

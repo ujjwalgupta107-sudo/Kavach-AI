@@ -21,7 +21,7 @@ export function Login() {
     try {
       // Create x-www-form-urlencoded data for OAuth2
       const formData = new URLSearchParams();
-      formData.append('username', email);
+      formData.append('username', email.trim());
       formData.append('password', password);
 
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/v1/auth/login`, {

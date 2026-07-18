@@ -40,4 +40,4 @@ services:
         fromService:
           type: web
           name: kavach-backend
-          property: url
+          property: hostport

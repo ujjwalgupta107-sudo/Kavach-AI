@@ -8,13 +8,16 @@ The platform consists of a **FastAPI Python Backend**, a **React Web Dashboard**
 
 ### Citizen Shield
 - **Threat Analysis:** Citizens can upload suspicious texts, audio, or files for instant AI-based risk scoring.
-- **AI Chat Assistant:** A smart conversational assistant that guides citizens on how to report scams and protect their personal information.
+- **Counterfeit Currency Scanner (FICN):** AI-powered computer vision tool to instantly detect fake Indian banknotes by analyzing microprints and security threads.
+- **AI Chat Assistant (12 Regional Languages):** A smart conversational assistant that guides citizens on how to report scams and protect their personal information, natively supporting 12 Indian regional languages.
+- **Omnichannel WhatsApp & IVR Support:** Designed with an architecture that allows citizens to report incidents via standard WhatsApp messages and IVR toll-free numbers without needing an app.
 - **Reporting History:** Citizens can track the status of their reports and see investigator feedback.
 
 ### Investigator Command Centre
 - **Fraud Network Explorer:** An interactive Cytoscape.js graph that visualizes connections between scam cases, phone numbers, crypto wallets, and IP addresses to uncover organized fraud rings.
+- **Digital Arrest Detection & Alerts:** AI automatically tags "Digital Arrest" scams, empowering investigators to instantly Auto-Generate MHA Alerts to freeze transfers.
 - **Geospatial Intelligence Map:** A heat map highlighting scam hotspots to help prioritize regional enforcement.
-- **Case Management:** Tools for investigators to review citizen reports, update case statuses, and communicate safety updates.
+- **Case Management & Evidence Export:** Tools for investigators to review citizen reports, update case statuses, and export clean, court-admissible Intelligence Packages (PDF) with a single click.
 - **Real-Time Dashboards:** Key performance indicators and metrics tracking the volume and types of ongoing fraud.
 
 ## 🚀 Tech Stack & Architecture

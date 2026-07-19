@@ -3,10 +3,10 @@ import uuid
 from datetime import datetime, timezone
 from typing import List, Optional
 
-from sqlalchemy import String, Boolean, DateTime, Enum, UUID, ForeignKey, Float
+from sqlalchemy import String, Boolean, DateTime, Enum, ForeignKey, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.base import Base
+from app.db.base import Base, UUIDType
 
 class EntityType(str, enum.Enum):
     PHONE = "PHONE"
@@ -20,14 +20,14 @@ class EntityType(str, enum.Enum):
 class FraudCluster(Base):
     __tablename__ = "fraud_clusters"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUIDType(), primary_key=True, default=uuid.uuid4)
     risk_score: Mapped[float] = mapped_column(Float, default=0.0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 class Entity(Base):
     __tablename__ = "entities"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUIDType(), primary_key=True, default=uuid.uuid4)
     type: Mapped[EntityType] = mapped_column(Enum(EntityType), nullable=False)
     value: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
     masked_value: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
@@ -44,7 +44,7 @@ class Entity(Base):
 class CaseEntityLink(Base):
     __tablename__ = "case_entity_links"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUIDType(), primary_key=True, default=uuid.uuid4)
     case_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("cases.id"), index=True, nullable=False)
     entity_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("entities.id"), index=True, nullable=False)
     

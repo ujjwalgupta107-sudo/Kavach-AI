@@ -1,11 +1,10 @@
 from sqlalchemy import Column, String, DateTime, JSON, ForeignKey, Enum, Float
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import enum
 import uuid
 import datetime
 
-from app.db.base import Base
+from app.db.base import Base, UUIDType
 
 class AgentRunStatus(str, enum.Enum):
     PENDING = "PENDING"
@@ -22,8 +21,8 @@ class AgentType(str, enum.Enum):
 class AgentRun(Base):
     __tablename__ = "agent_runs"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    case_id = Column(UUID(as_uuid=True), ForeignKey("cases.id", ondelete="CASCADE"), nullable=False)
+    id = Column(UUIDType(), primary_key=True, default=uuid.uuid4)
+    case_id = Column(UUIDType(), ForeignKey("cases.id", ondelete="CASCADE"), nullable=False)
     status = Column(Enum(AgentRunStatus), default=AgentRunStatus.PENDING, nullable=False)
     provider = Column(String, nullable=False)
     model = Column(String, nullable=False)
@@ -31,7 +30,7 @@ class AgentRun(Base):
     final_brief = Column(JSON, nullable=True)
     
     # Keeping created_by minimal; normally this links to Users table
-    created_by = Column(UUID(as_uuid=True), nullable=True)
+    created_by = Column(UUIDType(), nullable=True)
     
     started_at = Column(DateTime, nullable=True)
     completed_at = Column(DateTime, nullable=True)
@@ -42,8 +41,8 @@ class AgentRun(Base):
 class AgentFinding(Base):
     __tablename__ = "agent_findings"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    run_id = Column(UUID(as_uuid=True), ForeignKey("agent_runs.id", ondelete="CASCADE"), nullable=False)
+    id = Column(UUIDType(), primary_key=True, default=uuid.uuid4)
+    run_id = Column(UUIDType(), ForeignKey("agent_runs.id", ondelete="CASCADE"), nullable=False)
     agent_type = Column(Enum(AgentType), nullable=False)
     finding_type = Column(String, nullable=False)
     content = Column(String, nullable=False)

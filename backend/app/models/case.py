@@ -3,10 +3,10 @@ import uuid
 from datetime import datetime, timezone
 from typing import List, Optional
 
-from sqlalchemy import String, Boolean, DateTime, Enum, UUID, ForeignKey, Float, Text, JSON
+from sqlalchemy import String, Boolean, DateTime, Enum, ForeignKey, Float, Text, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.base import Base
+from app.db.base import Base, UUIDType
 
 class ScamType(str, enum.Enum):
     DIGITAL_ARREST = "DIGITAL_ARREST"
@@ -40,7 +40,7 @@ class EvidenceType(str, enum.Enum):
 class Case(Base):
     __tablename__ = "cases"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUIDType(), primary_key=True, default=uuid.uuid4)
     reporter_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True, nullable=False)
     
     scam_type: Mapped[ScamType] = mapped_column(Enum(ScamType), nullable=False)
@@ -57,7 +57,7 @@ class Case(Base):
     lng: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     city: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     
-    cluster_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), nullable=True, index=True)
+    cluster_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUIDType(), nullable=True, index=True)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
@@ -71,7 +71,7 @@ class Case(Base):
 class Evidence(Base):
     __tablename__ = "evidence"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUIDType(), primary_key=True, default=uuid.uuid4)
     case_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("cases.id"), index=True, nullable=False)
     uploader_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True, nullable=False)
     
@@ -95,7 +95,7 @@ class Evidence(Base):
 class CaseTimelineEvent(Base):
     __tablename__ = "case_timeline_events"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUIDType(), primary_key=True, default=uuid.uuid4)
     case_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("cases.id"), index=True, nullable=False)
     actor_id: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("users.id"), nullable=True) # Null if system event
     

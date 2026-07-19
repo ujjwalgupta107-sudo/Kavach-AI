@@ -22,13 +22,13 @@ async def seed_data():
         # Create Users
         investigator = User(
             email="investigator@kavach.ai",
-            password_hash=get_password_hash("test1234"),
+            password_hash=get_password_hash("admin123"),
             role=UserRole.INVESTIGATOR,
             full_name="Raj Singh"
         )
         citizen = User(
             email="citizen@example.com",
-            password_hash=get_password_hash("test1234"),
+            password_hash=get_password_hash("password123"),
             role=UserRole.CITIZEN,
             full_name="Jane Doe"
         )

@@ -2,16 +2,16 @@ import uuid
 from datetime import datetime, timezone
 from typing import List
 
-from sqlalchemy import String, DateTime, UUID, ForeignKey, Float, Text, Enum
+from sqlalchemy import String, DateTime, ForeignKey, Float, Text, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.base import Base
+from app.db.base import Base, UUIDType
 from app.models.case import ScamType, RiskLevel
 
 class AnalysisResult(Base):
     __tablename__ = "analysis_results"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUIDType(), primary_key=True, default=uuid.uuid4)
     evidence_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("evidence.id"), index=True, nullable=True) # Analysis can be on evidence
     case_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("cases.id"), index=True, nullable=True) # Or directly on case description
     
@@ -29,7 +29,7 @@ class AnalysisResult(Base):
 class RedFlag(Base):
     __tablename__ = "red_flags"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUIDType(), primary_key=True, default=uuid.uuid4)
     analysis_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("analysis_results.id"), index=True, nullable=False)
     
     description: Mapped[str] = mapped_column(Text, nullable=False)
@@ -39,7 +39,7 @@ class RedFlag(Base):
 class RecommendedAction(Base):
     __tablename__ = "recommended_actions"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUIDType(), primary_key=True, default=uuid.uuid4)
     analysis_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("analysis_results.id"), index=True, nullable=False)
     
     action: Mapped[str] = mapped_column(Text, nullable=False)

@@ -35,7 +35,7 @@ export function LoginScreen() {
 
     try {
       // OAuth2 form-urlencoded login — matching web behavior
-      const formData = `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+      const formData = `username=${encodeURIComponent(email.trim().toLowerCase())}&password=${encodeURIComponent(password)}`;
       const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

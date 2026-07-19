@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     @field_validator("DATABASE_URL", mode="before")
     def assemble_db_connection(cls, v: Optional[str]) -> str:
         if isinstance(v, str):
+            # Don't modify sqlite URLs
+            if v.startswith("sqlite"):
+                return v
             if v.startswith("postgres://"):
                 return v.replace("postgres://", "postgresql+asyncpg://", 1)
             elif v.startswith("postgresql://"):

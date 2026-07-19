@@ -84,10 +84,12 @@ def run_tests():
     # J. Check DB password hashing
     print("Checking DB password hashing...")
     async def check_db():
-        conn = await asyncpg.connect(DB_URL)
-        val = await conn.fetchval("SELECT password_hash FROM users WHERE email = $1", cit_email)
-        await conn.close()
-        return val
+        from app.db.session import engine
+        from sqlalchemy import text
+        async with engine.connect() as conn:
+            result = await conn.execute(text("SELECT password_hash FROM users WHERE email = :email"), {"email": cit_email})
+            row = result.fetchone()
+            return row[0] if row else None
     hash_val = asyncio.run(check_db())
     print(f"  Password is hashed: {hash_val.startswith('$2b$') and len(hash_val) > 20}")
     assert hash_val.startswith('$2b$'), "Password not properly hashed (bcrypt)"

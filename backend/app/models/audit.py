@@ -1,14 +1,14 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import String, DateTime, UUID, ForeignKey, Text, JSON
+from sqlalchemy import String, DateTime, ForeignKey, Text, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.base import Base
+from app.db.base import Base, UUIDType
 
 class AuditLog(Base):
     __tablename__ = "audit_logs"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUIDType(), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), index=True, nullable=True)
     action: Mapped[str] = mapped_column(String(255), nullable=False)
     resource_type: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -19,7 +19,7 @@ class AuditLog(Base):
 class InvestigatorNote(Base):
     __tablename__ = "investigator_notes"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUIDType(), primary_key=True, default=uuid.uuid4)
     case_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("cases.id"), index=True, nullable=False)
     author_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True, nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)

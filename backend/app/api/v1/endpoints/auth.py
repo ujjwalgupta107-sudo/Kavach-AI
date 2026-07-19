@@ -24,7 +24,8 @@ async def register(
 ):
     user_repo = UserRepository(db)
     
-    existing_user = await user_repo.get_by_email(user_in.email)
+    normalized_email = user_in.email.strip().lower()
+    existing_user = await user_repo.get_by_email(normalized_email)
     if existing_user:
         raise ValidationException("Email already registered")
         
@@ -34,7 +35,7 @@ async def register(
             raise UnauthorizedException("Invalid Investigator Authorization Code")
             
     user = User(
-        email=user_in.email,
+        email=normalized_email,
         full_name=user_in.full_name,
         password_hash=get_password_hash(user_in.password),
         role=user_in.role
@@ -48,7 +49,8 @@ async def login(
     db: Annotated[AsyncSession, Depends(get_db)]
 ):
     user_repo = UserRepository(db)
-    user = await user_repo.get_by_email(form_data.username)
+    normalized_username = form_data.username.strip().lower()
+    user = await user_repo.get_by_email(normalized_username)
     
     if not user or not verify_password(form_data.password, user.password_hash):
         raise UnauthorizedException("Incorrect email or password")

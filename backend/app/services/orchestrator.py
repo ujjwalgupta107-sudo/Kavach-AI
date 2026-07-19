@@ -2,6 +2,7 @@ import json
 import uuid
 import re
 import datetime
+import logging
 from typing import Dict, Any, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -11,6 +12,8 @@ from app.services.agent_tool_service import AgentToolService
 from app.core.llm_provider import get_llm_provider, LLMProviderException
 from app.core.config import settings
 from app.core.agent_prompts import INVESTIGATION_AGENT_SYSTEM_PROMPT
+
+logger = logging.getLogger(__name__)
 
 class OrchestratorException(Exception):
     pass

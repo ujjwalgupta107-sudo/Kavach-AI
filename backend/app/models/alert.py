@@ -1,10 +1,10 @@
 import enum
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import String, DateTime, Enum, UUID, ForeignKey, Text, Boolean
+from sqlalchemy import String, DateTime, Enum, ForeignKey, Text, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.base import Base
+from app.db.base import Base, UUIDType
 
 class AlertType(str, enum.Enum):
     HIGH_RISK_CASE = "HIGH_RISK_CASE"
@@ -23,7 +23,7 @@ class AlertSeverity(str, enum.Enum):
 class Alert(Base):
     __tablename__ = "alerts"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUIDType(), primary_key=True, default=uuid.uuid4)
     alert_type: Mapped[AlertType] = mapped_column(Enum(AlertType), nullable=False)
     severity: Mapped[AlertSeverity] = mapped_column(Enum(AlertSeverity), nullable=False)
     

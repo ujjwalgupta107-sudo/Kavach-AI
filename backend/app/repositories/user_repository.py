@@ -13,7 +13,7 @@ class UserRepository:
         return result.scalar_one_or_none()
 
     async def get_by_email(self, email: str) -> Optional[User]:
-        result = await self.session.execute(select(User).where(User.email == email))
+        result = await self.session.execute(select(User).where(User.email == email.strip().lower()))
         return result.scalar_one_or_none()
 
     async def create(self, user: User) -> User:

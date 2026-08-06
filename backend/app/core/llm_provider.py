@@ -17,32 +17,37 @@ class GeminiProvider(BaseLLMProvider):
     def __init__(self, api_key: str, model: str):
         self.api_key = api_key
         self.model = model
-        try:
-            from google import genai
-            from google.genai import types
-            self.client = genai.Client(api_key=self.api_key)
-            self.types = types
-        except ImportError:
-            self.client = None
-            logger.warning("google-genai package not found. Gemini provider is disabled.")
 
     async def generate(self, system_prompt: str, user_prompt: str, max_tokens: int = 1024, temperature: float = 0.2) -> str:
-        if not self.client:
-            raise LLMProviderException("Gemini client is not initialized (google-genai missing)")
-        
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+        payload = {
+            "contents": [
+                {
+                    "parts": [{"text": user_prompt}]
+                }
+            ],
+            "generationConfig": {
+                "temperature": temperature,
+                "maxOutputTokens": max_tokens
+            }
+        }
+        if system_prompt:
+            payload["systemInstruction"] = {
+                "parts": [{"text": system_prompt}]
+            }
+            
         try:
-            response = await self.client.aio.models.generate_content(
-                model=self.model,
-                contents=user_prompt,
-                config=self.types.GenerateContentConfig(
-                    system_instruction=system_prompt,
-                    temperature=temperature,
-                    max_output_tokens=max_tokens,
-                )
-            )
-            return response.text
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                response = await client.post(url, json=payload)
+                response.raise_for_status()
+                data = response.json()
+                return data["candidates"][0]["content"]["parts"][0]["text"]
         except Exception as e:
-            raise LLMProviderException(f"Gemini API error: {str(e)}")
+            try:
+                err_detail = response.json().get("error", {}).get("message", str(e))
+            except Exception:
+                err_detail = str(e)
+            raise LLMProviderException(f"Gemini HTTP API error: {err_detail}")
 
 class OllamaProvider(BaseLLMProvider):
     def __init__(self, base_url: str, model: str):
@@ -140,7 +145,7 @@ def get_llm_provider(allow_mock: bool = False) -> BaseLLMProvider:
         return GeminiProvider(api_key=settings.LLM_API_KEY, model=settings.AI_MODEL)
     elif provider_name == "ollama":
         return OllamaProvider(base_url=settings.OLLAMA_BASE_URL, model=settings.OLLAMA_MODEL)
-    elif provider_name == "mock" and allow_mock:
+    elif provider_name == "mock" or allow_mock:
         return MockProvider()
         
     raise LLMProviderException(f"Unsupported or unconfigured AI_PROVIDER: {provider_name}")

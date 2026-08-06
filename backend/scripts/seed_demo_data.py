@@ -12,7 +12,7 @@ from app.models.entity import Entity, EntityType, CaseEntityLink, FraudCluster
 from app.models.analysis import AnalysisResult, RedFlag
 from app.models.alert import Alert, AlertType, AlertSeverity
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")
 
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)

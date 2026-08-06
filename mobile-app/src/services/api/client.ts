@@ -13,7 +13,7 @@ const TOKEN_KEY = 'kavach_token';
 const getDefaultBaseUrl = () => {
   if (Platform.OS === 'android') {
     // Use local network IP so physical devices can connect
-    return 'http://192.168.1.46:8000';
+    return 'http://192.168.1.38:8000';
   }
   return 'http://localhost:8000';
 };

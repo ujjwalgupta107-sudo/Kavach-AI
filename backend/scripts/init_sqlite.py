@@ -17,7 +17,7 @@ from app.models.alert import Alert, AlertType, AlertSeverity
 from app.models.agent_run import AgentRun, AgentFinding
 from app.models.audit import InvestigatorNote
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")
 
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)

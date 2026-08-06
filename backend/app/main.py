@@ -79,3 +79,5 @@ async def readiness_check():
         "status": "ready" if db_status == "ok" else "not_ready",
         "database": db_status
     }
+# Trigger reload comment v2
+
